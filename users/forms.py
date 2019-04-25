@@ -1,5 +1,5 @@
 from django import forms
-from django.conf import settings
+from .models import User
 
 
 class LoginForm(forms.Form):
@@ -14,5 +14,7 @@ class UserModelForm(forms.ModelForm):
     password = forms.CharField(required=True, widget=forms.PasswordInput())
 
     class Meta:
-        model = settings.AUTH_USER_MODEL
-        fields = '__all__'
+        model = User
+        fields = [
+            'first_name', 'last_name', 'email', 'password'
+        ]
