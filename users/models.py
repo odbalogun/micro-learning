@@ -1,12 +1,13 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.base_user import AbstractBaseUser
 from safedelete.models import SafeDeleteModel
 
 from .managers import UserManager
 
 
-class User(SafeDeleteModel, AbstractUser):
-    email = models.EmailField('email address', unique=True, blank=False)
+class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField('email address', unique=True)
     first_name = models.CharField('first name', max_length=100)
     last_name = models.CharField('last name', max_length=100)
     created_at = models.DateTimeField('date created', auto_now_add=True)
