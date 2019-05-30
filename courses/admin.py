@@ -13,6 +13,7 @@ class CourseAdmin(admin.ModelAdmin):
     readonly_fields = ('course_actions',)
     list_filter = ('created_by', 'created_at')
     exclude = ('slug', 'created_at', 'created_by', 'is_active')
+    actions = ["mark_activated", "mark_deactivated"]
 
     def save_model(self, request, obj, form, change):
         if getattr(obj, 'created_by', None) is None:
@@ -79,6 +80,12 @@ class CourseAdmin(admin.ModelAdmin):
     def course_actions(self, obj):
         return format_html('<a class="button" href="{}">Add Module</a>&nbsp;',
                            reverse('admin:add-module', args=[obj.pk]))
+
+    def mark_activated(self, request, queryset):
+        queryset.update(is_active=True)
+
+    def mark_deactivated(self, request, queryset):
+        queryset.update(is_active=False)
 
     course_actions.short_description = 'Actions'
     course_actions.allow_tags = True
