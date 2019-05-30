@@ -105,3 +105,10 @@ venv.bak/
 
 # pycharm files
 .idea/
+
+# static files
+staticfiles/*
+staticfiles
+
+# media
+media/*
