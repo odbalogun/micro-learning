@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'olade.apps.SuitConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -126,5 +127,14 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+# Tell Django where to find static files
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'assets'),
+)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles/')
 
 LOGIN_REDIRECT_URL = '/users/'
+
+# path to media
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
