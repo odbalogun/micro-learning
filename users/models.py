@@ -13,11 +13,17 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField('date created', auto_now_add=True)
     is_active = models.BooleanField('active', default=True)
     is_admin = models.BooleanField('is admin', default=False)
+    is_staff = models.BooleanField('staff status', default=False)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
+
+    def __str__(self):
+        if self.first_name and self.last_name:
+            return "{} {}".format(self.first_name, self.last_name)
+        return self.email
 
     class Meta:
         verbose_name = 'user'

@@ -1,4 +1,4 @@
-from django.views.generic import FormView, CreateView
+from django.views.generic import FormView, CreateView, ListView
 from django.urls import reverse_lazy
 from django.contrib.auth.forms import AuthenticationForm
 from django.conf import settings
@@ -13,8 +13,13 @@ class LoginView(FormView):
     success_url = settings.LOGIN_REDIRECT_URL
 
 
+class UserListView(ListView):
+    template_name = "users/list.html"
+    queryset = User.objects.all()
+
+
 class UserCreateView(CreateView):
-    form_class =  UserModelForm
+    form_class = UserModelForm
     template_name = "users/create.html"
     success_url = reverse_lazy("users:login")
 
