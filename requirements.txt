@@ -1,0 +1,6 @@
+Django==2.2.1
+django-safedelete==0.5.1
+django-suit==2.0a1
+Pillow==6.0.0
+pytz==2019.1
+sqlparse==0.3.0
