@@ -50,3 +50,11 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
             "first_name": self.first_name,
             "last_name": self.last_name
         }
+
+
+class Student(User):
+    """
+    Proxy model so we can separate logic for students from that for admin users in Django admin
+    """
+    class Meta:
+        proxy = True
