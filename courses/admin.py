@@ -11,6 +11,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'display_fee', 'students_count', 'modules_count', 'is_active', 'created_by',
                     'created_at', 'course_actions')
     readonly_fields = ('course_actions',)
+    search_fields = ('name', )
     list_filter = ('created_by', 'created_at')
     exclude = ('slug', 'created_at', 'created_by', 'is_active')
     actions = ["mark_activated", "mark_deactivated"]
@@ -93,6 +94,7 @@ class CourseAdmin(admin.ModelAdmin):
 
 class ModuleAdmin(admin.ModelAdmin):
     list_display = ('name', 'course', 'order', 'access_code', 'created_by', 'created_at')
+    search_fields = ['name', 'course__name']
     list_filter = ('created_by', 'created_at', 'course')
 
     def save_model(self, request, obj, form, change):

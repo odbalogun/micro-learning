@@ -12,7 +12,6 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField('last name', max_length=100)
     created_at = models.DateTimeField('date created', auto_now_add=True)
     is_active = models.BooleanField('active', default=True)
-    is_admin = models.BooleanField('is admin', default=False)
     is_staff = models.BooleanField('staff status', default=False)
 
     objects = UserManager()

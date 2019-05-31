@@ -4,16 +4,18 @@ from .models import User, Student
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'is_active', 'is_admin', 'created_at')
-    list_filter = ('is_admin', 'created_at', 'is_active')
+    list_display = ('first_name', 'last_name', 'email', 'is_active', 'is_superuser', 'created_at')
+    list_filter = ('is_superuser', 'created_at', 'is_active')
 
 
 class StudentAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'email', 'is_active', 'created_at')
+    fields = ('email', 'first_name', 'last_name', 'password')
+    exclude = ('is_superuser', 'is_staff', 'is_active', 'groups', 'user_permissions', 'last_login')
 
     def save_model(self, request, obj, form, change):
-        if getattr(obj, 'created_by', None) is None:
-            obj.created_by = request.user
+        obj.is_staff = False
+        obj.is_superuser = False
         obj.save()
 
     def get_queryset(self, request):
