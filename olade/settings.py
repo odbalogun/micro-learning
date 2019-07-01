@@ -51,9 +51,19 @@ INSTALLED_APPS = [
 
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
 
+CONSTANCE_ADDITIONAL_FIELDS = {
+    'password': ['django.forms.CharField', {
+        'widget': 'django.forms.PasswordInput',
+    }],
+}
+
 CONSTANCE_CONFIG = {
-    'THE_ANSWER': (42, 'Answer to the Ultimate Question of Life, '
-                       'The Universe, and Everything'),
+    'APP_EMAIL_ADDRESS': ('training@oladeconsulting.com', 'Email address by the application to send out emails'),
+    'APP_EMAIL_PASSWORD': ('test', 'Password for application email address', 'password'),
+    'STRIPE_USERNAME': ('stripe', 'Username for Olade Stripe account'),
+    'STRIPE_API_KEY': ('stripe', 'API key for Olade Stripe account', str),
+    'ONE_DRIVE_API_KEY': ('one-drive', 'API key for Olade One Drive account', str),
+    'MODULE_EXPIRY_DAYS': (7, 'Number of days before access to module is revoked', int)
 }
 
 MIDDLEWARE = [
