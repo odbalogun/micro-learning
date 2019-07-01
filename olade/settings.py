@@ -44,7 +44,16 @@ INSTALLED_APPS = [
     'safedelete',
     'users',
     'courses',
+    'constance',
+    'constance.backends.database',
 ]
+
+CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
+
+CONSTANCE_CONFIG = {
+    'THE_ANSWER': (42, 'Answer to the Ultimate Question of Life, '
+                       'The Universe, and Everything'),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
