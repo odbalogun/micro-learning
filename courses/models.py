@@ -23,7 +23,7 @@ class Courses(SafeDeleteModel):
     slug = models.CharField('slug', null=False, max_length=100)
     short_description = models.TextField('short description', max_length=300)
     description = models.TextField('description', blank=False)
-    course_fee = models.FloatField('course fee')
+    course_fee = models.DecimalField('course fee', decimal_places=2, max_digits=10)
     image = models.ImageField('image', upload_to=course_image_path)
     is_active = models.BooleanField('is active', default=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_courses', on_delete=models.CASCADE)
@@ -65,9 +65,15 @@ class Courses(SafeDeleteModel):
 
 class Enrolled(models.Model):
     course = models.ForeignKey(Courses, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='enrolled_courses')
     payment_status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES)
+    amount_paid = models.DecimalField('amount paid', decimal_places=2, max_digits=10, default=0)
     date_enrolled = models.DateTimeField('date enrolled', auto_now_add=True)
+
+    class Meta:
+        unique_together = ('course', 'user')
+        verbose_name_plural = 'Enrolled Courses'
+        verbose_name = 'Enrolled Course'
 
 
 class Modules(SafeDeleteModel):

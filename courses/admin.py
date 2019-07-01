@@ -3,14 +3,19 @@ from django.urls import re_path, reverse
 from django.utils.html import format_html
 from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
-from .models import Courses, Modules
+from .models import Courses, Modules, Enrolled
 from .forms import ModuleForm
+
+
+class EnrolledInline(admin.StackedInline):
+    model = Enrolled
+    extra = 1
+    can_delete = True
 
 
 class CourseAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'display_fee', 'students_count', 'modules_count', 'is_active', 'created_by',
                     'created_at', 'course_actions')
-    readonly_fields = ('course_actions',)
     search_fields = ('name', )
     list_filter = ('created_by', 'created_at')
     exclude = ('slug', 'created_at', 'created_by', 'is_active')
@@ -33,8 +38,26 @@ class CourseAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.process_add_module),
                 name='add-module',
             ),
+            re_path(
+                r'^(?P<course_id>.+)/view/$',
+                self.admin_site.admin_view(self.view_course),
+                name='view',
+            ),
         ]
         return custom_urls + urls
+
+    def view_course(self, request, course_id, *args, **kwargs):
+        course = self.get_object(request, course_id)
+
+        context = self.admin_site.each_context(request)
+        context['opts'] = self.model._meta
+        context['course'] = course
+        context['title'] = course.name
+        return TemplateResponse(
+            request,
+            'admin/courses/view_course.html',
+            context,
+        )
 
     def process_add_module(self, request, course_id, *args, **kwargs):
         return self.process_action_form(
@@ -79,8 +102,9 @@ class CourseAdmin(admin.ModelAdmin):
         )
 
     def course_actions(self, obj):
-        return format_html('<a class="button" href="{}">Add Module</a>&nbsp;',
-                           reverse('admin:add-module', args=[obj.pk]))
+        return format_html('<a class="button" href="{}">Add Module</a>&nbsp; '
+                           '<a class="button" href="{}">View Course</a>&nbsp;',
+                           reverse('admin:add-module', args=[obj.pk]), reverse('admin:view', args=[obj.pk]))
 
     def mark_activated(self, request, queryset):
         queryset.update(is_active=True)
