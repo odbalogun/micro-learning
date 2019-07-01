@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'courses',
     'constance',
     'constance.backends.database',
+    'configurations',
 ]
 
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'

@@ -41,12 +41,6 @@ class StudentAdmin(admin.ModelAdmin):
         return self.model.objects.filter(is_staff=False)
 
 
-from constance.admin import ConstanceAdmin, Config
-admin.site.unregister([Config])
-
-
-# admin.site.register([Config], ConstanceAdmin)
-
 admin.site.register(User, UserAdmin)
 admin.site.register(Student, StudentAdmin)
 admin.site.unregister(Group)
