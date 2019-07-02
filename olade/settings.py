@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'constance',
     'constance.backends.database',
     'configurations',
+    'payments',
 ]
 
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
