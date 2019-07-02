@@ -1,3 +1,9 @@
 from django.contrib import admin
+from .models import PaymentLog
 
-# Register your models here.
+
+class PaymentLogAdmin(admin.ModelAdmin):
+    pass
+
+
+admin.site.register(PaymentLog, PaymentLogAdmin)
