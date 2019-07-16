@@ -1,0 +1,77 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %} Olade - My Courses {% endblock %}
+{% block custom_css %}
+    <link rel="stylesheet" href="{% static 'frontend/assets/css/datatables/datatables.min.css' %}">
+{% endblock %}
+
+{% block page-title %} My Courses {% endblock %}
+{% block breadcrumb %} My Courses {% endblock %}
+
+{% block content %}
+<!-- Begin Row -->
+<div class="row flex-row">
+    <div class="col-xl-12 col-12">
+        <!-- Sorting -->
+        <div class="widget has-shadow">
+            <div class="widget-header bordered no-actions d-flex align-items-center">
+                <h4>Enrolled Courses</h4>
+            </div>
+            <div class="widget-body">
+                <div class="table-responsive">
+                    <table id="sorting-table" class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Current Module</th>
+                                <th>Date Registered</th>
+                                <th><span style="width:100px;">Status</span></th>
+                                <th>Fee</th>
+                                <th><span style="width:100px;">Payment Status</span></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in objects %}
+                            <tr>
+                                <td>{{ row.course }}</td>
+                                <td>{{ row.current_module }}</td>
+                                <td>{{ row.date_enrolled }}</td>
+                                <td>Ongoing</td>
+                                <td>
+                                    <span style="width:100px;">
+                                        {% if row.payment_status == 'paid' %}
+                                            <span class="badge-text badge-text-small success">Paid</span>
+                                        {% elif row.payment_status == 'partly' %}
+                                            <span class="badge-text badge-text-small info">Part Payment</span>
+                                        {% else %}
+                                            <span class="badge-text badge-text-small danger">Unpaid</span>
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ row.course.display_fee }}</td>
+                                <td class="td-actions">
+                                    <!--
+                                    <a href="#"><i class="la la-edit edit"></i></a>
+                                    <a href="#"><i class="la la-close delete"></i></a>
+                                    -->
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- End Sorting -->
+    </div>
+</div>
+<!-- End Row -->
+{% endblock %}
+
+{% block custom_js %}
+    <script src="{% static 'frontend/assets/vendors/js/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'frontend/assets/vendors/js/datatables/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'frontend/assets/js/components/tables/tables.js' %}"></script>
+{% endblock %}

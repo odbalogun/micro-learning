@@ -75,7 +75,7 @@ class Modules(SafeDeleteModel):
     students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='modules', through="UserModules")
 
     def __str__(self):
-        return self.name
+        return "{}: {}".format(self.order, self.name)
 
     class Meta:
         unique_together = ('course', 'order')

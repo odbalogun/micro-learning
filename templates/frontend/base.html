@@ -1,0 +1,183 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{% block title %}Olade - Dashboard{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- Google Fonts -->
+        <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+        <script>
+          WebFont.load({
+            google: {"families":["Montserrat:400,500,600,700","Noto+Sans:400,700"]},
+            active: function() {
+                sessionStorage.fonts = true;
+            }
+          });
+        </script>
+        <!-- Favicon -->
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'frontend/assets/img/apple-touch-icon.png' %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'frontend/assets/img/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'frontend/assets/img/favicon-16x16.png' %}">
+        <!-- Stylesheet -->
+        <link rel="stylesheet" href="{% static 'frontend/assets/vendors/css/base/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'frontend/assets/vendors/css/base/elisyam-1.5.min.css' %}">
+        <link rel="stylesheet" href="{% static 'frontend/assets/css/animate/animate.min.css' %}">
+        {% block custom_css %} {% endblock %}
+        <!-- Tweaks for older IEs--><!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+    </head>
+    <body id="page-top">
+        <!-- Begin Preloader -->
+        <div id="preloader">
+            <div class="canvas">
+                <img src="{% static 'frontend/assets/img/olade-logo-dark.png' %}" alt="logo" class="loader-logo">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        <!-- End Preloader -->
+        <div class="page">
+            <!-- Begin Header -->
+            <header class="header">
+                <nav class="navbar fixed-top">
+                    <!-- Begin Topbar -->
+                    <div class="navbar-holder d-flex align-items-center align-middle justify-content-between">
+                        <!-- Begin Logo -->
+                        <div class="navbar-header">
+                            <a href="db-default.html" class="navbar-brand">
+                                <div class="brand-image brand-big">
+                                    <img src="{% static 'frontend/assets/img/olade-logo-light.png' %}" alt="logo" class="logo-big"  style="width: 100px;">
+                                </div>
+                                <div class="brand-image brand-small">
+                                    <img src="{% static 'frontend/assets/img/olade-logo-light.png' %}" alt="logo" class="logo-small" style="width: 50px;">
+                                </div>
+                            </a>
+                            <!-- Toggle Button -->
+                            <a id="toggle-btn" href="#" class="menu-btn active">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </a>
+                            <!-- End Toggle -->
+                        </div>
+                        <!-- End Logo -->
+                        <!-- Begin Navbar Menu -->
+                        <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center pull-right">
+                            <!-- User -->
+                            <li class="nav-item dropdown"><a id="user" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link"><img src="{% static 'frontend/assets/img/avatar/user_avatar.png' %}" alt="..." class="avatar rounded-circle"></a>
+                                <ul aria-labelledby="user" class="user-size dropdown-menu">
+                                    <li class="welcome">
+                                        <!--<a href="#" class="edit-profil"><i class="la la-gear"></i></a>-->
+                                        <img src="{% static 'frontend/assets/img/avatar/user_avatar.png' %}" alt="..." class="rounded-circle">
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'users:change-password' %}" class="dropdown-item">
+                                            Change Password
+                                        </a>
+                                    </li>
+                                    <li><a href="{% url 'users:logout' %}" class="dropdown-item logout text-center"><i class="ti-power-off"></i></a></li>
+                                </ul>
+                            </li>
+                            <!-- End User -->
+                        </ul>
+                        <!-- End Navbar Menu -->
+                    </div>
+                    <!-- End Topbar -->
+                </nav>
+            </header>
+            <!-- End Header -->
+            <!-- Begin Page Content -->
+            <div class="page-content d-flex align-items-stretch">
+                <div class="default-sidebar">
+                    <!-- Begin Side Navbar -->
+                    <nav class="side-navbar box-scroll sidebar-scroll">
+                        <!-- Begin Main Navigation -->
+                        <ul class="list-unstyled">
+                            <li><a href="{% url 'courses:my-courses' %}"><i class="la la-book"></i><span>My Courses</span></a></li>
+                            <li><a href="{% url 'courses:my-certificates' %}"><i class="la la-graduation-cap"></i><span>My Certificates</span></a></li>
+                            <li><a href="#"><i class="la la-file-text"></i><span>Payment History</span></a></li>
+                        </ul>
+                        <span class="heading">User Actions</span>
+                        <ul class="list-unstyled">
+                            <li><a href="{% url 'users:change-password' %}"><i class="la la-cog"></i><span>Change Password</span></a></li>
+                            <li><a href="{% url 'users:logout' %}"><i class="la la-sign-out"></i><span>Logout</span></a></li>
+                        </ul>
+                        <!-- End Main Navigation -->
+                    </nav>
+                    <!-- End Side Navbar -->
+                </div>
+                <!-- End Left Sidebar -->
+                <div class="content-inner">
+                    <div class="container-fluid">
+                        <!-- Begin Page Header-->
+                        <div class="row">
+                            <div class="page-header">
+	                            <div class="d-flex align-items-center">
+	                                <h2 class="page-header-title">{% block page-title %}Blank Page {% endblock %}</h2>
+                                    <div>
+                                        <ul class="breadcrumb">
+                                            <li class="breadcrumb-item"><a href="{% url 'courses:my-courses' %}"><i class="ti ti-home"></i></a></li>
+                                            <li class="breadcrumb-item active">{% block breadcrumb %}Blank{% endblock %}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Page Header -->
+
+                        {% block content %}
+                        <!-- Begin Row -->
+                        <div class="row flex-row">
+                            <div class="col-xl-12 col-12">
+                                <div class="widget has-shadow">
+                                    <div class="widget-body">
+                                        <p class="text-primary mt-2 mb-2">Play with Elisyam :)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Row -->
+                        {% endblock %}
+                    </div>
+                    <!-- End Container -->
+                    <!-- Begin Page Footer-->
+                    <footer class="main-footer fixed-footer">
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 d-flex align-items-center justify-content-xl-start justify-content-lg-start justify-content-md-start justify-content-center">
+                                <p class="text-gradient-02"><a style="display: inline;" target="_blank" href="https://oladeconsulting.com">Olade Consulting</a></p>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 d-flex align-items-center justify-content-xl-end justify-content-lg-end justify-content-md-end justify-content-center">
+                                <ul class="nav">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">Copyright <i class="la la-copyright"></i> 2019</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">All Rights Reserved</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </footer>
+                    <!-- End Page Footer -->
+                    <a href="#" class="go-top"><i class="la la-arrow-up"></i></a>
+
+                </div>
+                <!-- End Content -->
+            </div>
+            <!-- End Page Content -->
+        </div>
+        <!-- Begin Vendor Js -->
+        <script src="{% static 'frontend/assets/vendors/js/base/jquery.min.js' %}"></script>
+        <script src="{% static 'frontend/assets/vendors/js/base/core.min.js' %}"></script>
+        <!-- End Vendor Js -->
+        <!-- Begin Page Vendor Js -->
+        <script src="{% static 'frontend/assets/vendors/js/nicescroll/nicescroll.min.js' %}"></script>
+        <script src="{% static 'frontend/assets/vendors/js/noty/noty.min.js' %}"></script>
+        <script src="{% static 'frontend/assets/vendors/js/app/app.min.js' %}"></script>
+        <!-- End Page Vendor Js -->
+        <script src="{% static 'frontend/assets/js/components/tabs/animated-tabs.min.js' %}"></script>
+        {% block custom_js %}{% endblock %}
+    </body>
+</html>
