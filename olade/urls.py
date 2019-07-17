@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from users.views import UserLoginView
 
 # overwrite admin template variables
 admin.site.site_header = 'Olade Administration'                    # default: "Django Administration"
@@ -24,6 +25,7 @@ admin.site.index_title = 'Administration'                 # default: "Site admin
 admin.site.site_title = 'Olade site admin'      # default: "Django site admin"
 
 urlpatterns = [
+    path('', UserLoginView.as_view()),
     path('admin/', admin.site.urls),
     path('users/', include('users.urls', namespace='users')),
     path('courses/', include('courses.urls', namespace='courses')),
