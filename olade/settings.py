@@ -59,8 +59,8 @@ CONSTANCE_ADDITIONAL_FIELDS = {
 }
 
 CONSTANCE_CONFIG = {
-    'APP_EMAIL_ADDRESS': ('training@oladeconsulting.com', 'Email address by the application to send out emails'),
-    'APP_EMAIL_PASSWORD': ('test', 'Password for application email address', 'password'),
+    'APP_EMAIL_ADDRESS': ('oduntan.balogun@carrot.ng', 'Email address by the application to send out emails'),
+    'APP_EMAIL_PASSWORD': ('carrot@18', 'Password for application email address', 'password'),
     'STRIPE_USERNAME': ('stripe', 'Username for Olade Stripe account'),
     'STRIPE_API_KEY': ('stripe', 'API key for Olade Stripe account', str),
     'ONE_DRIVE_API_KEY': ('one-drive', 'API key for Olade One Drive account', str),
@@ -160,3 +160,8 @@ LOGIN_URL = '/users/login'
 # path to media
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# mail settings
+EMAIL_HOST = 'smtp.mail.eu-west-1.awsapps.com'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True

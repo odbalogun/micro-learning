@@ -5,6 +5,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from safedelete.models import SafeDeleteModel
 from django.core.mail import send_mail
 from .managers import UserManager
+from constance import config as custom_config
 
 
 class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
@@ -55,9 +56,10 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
             "last_name": self.last_name
         }
 
-    def email_user(self, subject, message, from_email=None, **kwargs):
+    def email_user(self, subject, message, from_email=custom_config.APP_EMAIL_ADDRESS, **kwargs):
         """Send an email to this user."""
-        send_mail(subject, message, from_email, [self.email], **kwargs)
+        send_mail(subject, message, from_email, [self.email], auth_user=custom_config.APP_EMAIL_ADDRESS,
+                  auth_password=custom_config.APP_EMAIL_PASSWORD, **kwargs)
 
     enrolled_courses_count.short_description = 'Courses count'
 
@@ -80,7 +82,10 @@ def post_save_user_receiver(sender, instance, created, **kwargs):
     Send an email to users, created by admins, with their passwords
     """
     print("got here")
-    if instance.created_by:
-        print(instance._password)
-        instance.send_mail("Your account has been created",
-                           "Your Olade has been created. Your password is {}".format(instance._password))
+    print(created)
+    print(instance.created_by)
+
+    if created and instance.created_by:
+        print("here II")
+        instance.email_user("Your account has been created",
+                            "Your Olade has been created. Your password is {}".format(instance._password))

@@ -18,3 +18,14 @@ class UserModelForm(forms.ModelForm):
 class LoginForm(forms.Form):
     username = forms.EmailField(required=True, max_length=50)
     password = forms.CharField(required=True, widget=forms.PasswordInput)
+
+
+class AdminUserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        widgets = {
+            'password': forms.PasswordInput(),
+        }
+        fields = [
+            'first_name', 'last_name', 'email', 'password', 'created_by'
+        ]

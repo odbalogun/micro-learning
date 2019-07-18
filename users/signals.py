@@ -11,7 +11,7 @@ def post_save_user_receiver(sender, instance, created, **kwargs):
     print("got here")
     if instance.created_by:
         print(instance._password)
-        instance.send_mail("Your account has been created",
+        instance.email_user("Your account has been created",
                            "Your Olade has been created. Your password is {}".format(instance._password))
 
 
