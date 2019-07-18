@@ -10,6 +10,7 @@ from olade.utilities import random_string
 class UserAdmin(admin.ModelAdmin):
     form = AdminUserForm
     list_display = ('first_name', 'last_name', 'email', 'is_active', 'is_superuser', 'created_at')
+    fields = ('email', 'first_name', 'last_name', 'is_active')
     list_filter = ('is_superuser', 'created_at', 'is_active')
     exclude = ('is_superuser', 'is_staff', 'groups', 'user_permissions', 'last_login')
 
