@@ -2,11 +2,11 @@ from django.views.generic import CreateView, ListView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from django.contrib.auth.views import LoginView, LogoutView, FormView
-from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from .forms import UserModelForm
+from .forms import UserModelForm, ChangePasswordForm
 from .models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -27,19 +27,22 @@ class UserLoginView(LoginView):
 
 
 class UserChangePasswordView(FormView):
-    form_class = SetPasswordForm
+    form_class = ChangePasswordForm
     template_name = "users/change_password.html"
     success_url = reverse_lazy("users:change-password")
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.user = request.user
         return super().dispatch(request, *args, **kwargs)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.user
-        return kwargs
+    def form_valid(self, form):
+        user = self.request.user
+        user.set_password(form.cleaned_data.get('new_password'))
+        user.save()
+        update_session_auth_hash(self.request, user)
+
+        messages.success(self.request, message="Your password has been changed successfully")
+        return super().form_valid(form)
 
 
 class LogoutPageView(LogoutView):

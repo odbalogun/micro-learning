@@ -29,3 +29,14 @@ class AdminUserForm(forms.ModelForm):
         fields = [
             'first_name', 'last_name', 'email', 'password', 'created_by'
         ]
+
+
+class ChangePasswordForm(forms.Form):
+    new_password = forms.CharField(required=True, max_length=50, widget=forms.PasswordInput())
+    confirm_password = forms.CharField(required=True, max_length=50, widget=forms.PasswordInput())
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data.get("new_password") != cleaned_data.get("confirm_password"):
+            raise forms.ValidationError('Passwords must match')

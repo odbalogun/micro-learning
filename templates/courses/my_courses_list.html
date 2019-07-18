@@ -33,7 +33,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for row in objects %}
+                            {% for row in object_list %}
                             <tr>
                                 <td>{{ row.course }}</td>
                                 <td>{{ row.current_module }}</td>
@@ -44,7 +44,7 @@
                                         {% if row.payment_status == 'paid' %}
                                             <span class="badge-text badge-text-small success">Paid</span>
                                         {% elif row.payment_status == 'partly' %}
-                                            <span class="badge-text badge-text-small info">Part Payment</span>
+                                            <span class="badge-text badge-text-small info">Partly</span>
                                         {% else %}
                                             <span class="badge-text badge-text-small danger">Unpaid</span>
                                         {% endif %}

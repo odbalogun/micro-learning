@@ -81,10 +81,6 @@ def post_save_user_receiver(sender, instance, created, **kwargs):
     """
     Send an email to users, created by admins, with their passwords
     """
-    print("got here")
-    print(created)
-    print(instance.created_by)
-
     if created and instance.created_by:
         print("here II")
         instance.email_user("Your account has been created",
