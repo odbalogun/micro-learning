@@ -56,10 +56,10 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
             "last_name": self.last_name
         }
 
-    def email_user(self, subject, message, from_email=custom_config.APP_EMAIL_ADDRESS, **kwargs):
+    def email_user(self, subject, message, from_email='oduntan.balogun@carrot.ng', **kwargs):
         """Send an email to this user."""
-        send_mail(subject, message, from_email, [self.email], auth_user=custom_config.APP_EMAIL_ADDRESS,
-                  auth_password=custom_config.APP_EMAIL_PASSWORD, **kwargs)
+        send_mail(subject, message, from_email, [self.email], auth_user='oduntan.balogun@carrot.ng',
+                  auth_password='carrot@18', **kwargs)
 
     enrolled_courses_count.short_description = 'Courses count'
 
