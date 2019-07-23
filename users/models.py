@@ -28,8 +28,8 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
         return self.email
 
     class Meta:
-        verbose_name = 'user'
-        verbose_name_plural = 'users'
+        verbose_name = 'administrator'
+        verbose_name_plural = 'administrators'
 
     def get_full_name(self):
         """

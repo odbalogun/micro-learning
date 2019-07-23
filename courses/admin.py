@@ -3,6 +3,7 @@ from django.urls import re_path, reverse
 from django.utils.html import format_html
 from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
+from django.contrib.admin.views.main import ChangeList
 from .models import Courses, Modules, Enrolled
 from .forms import ModuleForm
 
@@ -13,9 +14,18 @@ class EnrolledInline(admin.StackedInline):
     can_delete = True
 
 
+class EnrolledStudentList(ChangeList):
+    model = Enrolled
+
+    def get_queryset(self, request):
+        if request.GET.get('pk'):
+            return Enrolled.objects.filter(course_id=request.GET.get('pk'))
+        return Enrolled.objects.filter()
+
+
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'display_fee', 'students_count', 'modules_count', 'is_active', 'created_by',
-                    'created_at', 'course_actions')
+    list_display = ('name', 'slug', 'display_fee', 'students_count', 'modules_count', 'is_active',
+                    'created_by', 'created_at', 'course_actions')
     search_fields = ('name', )
     list_filter = ('created_by', 'created_at')
     exclude = ('slug', 'created_at', 'created_by', 'is_active')
@@ -43,6 +53,11 @@ class CourseAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.view_course),
                 name='view',
             ),
+            re_path(
+                r'^(?P<course_id>.+)/view-students/$',
+                self.admin_site.admin_view(self.view_students),
+                name='view-students',
+            ),
         ]
         return custom_urls + urls
 
@@ -58,6 +73,14 @@ class CourseAdmin(admin.ModelAdmin):
             'admin/courses/view_course.html',
             context,
         )
+
+    def view_students(self, request, course_id, *args, **kwargs):
+        course = self.get_object(request, course_id)
+
+        context = self.admin_site.each_context(request)
+        context['opts'] = self.model._meta
+        context['course'] = course
+        return TemplateResponse(request, 'admin/courses/view_students.html', context)
 
     def process_add_module(self, request, course_id, *args, **kwargs):
         return self.process_action_form(
@@ -102,9 +125,11 @@ class CourseAdmin(admin.ModelAdmin):
         )
 
     def course_actions(self, obj):
-        return format_html('<a class="button" href="{}">Add Module</a>&nbsp; '
-                           '<a class="button" href="{}">View Course</a>&nbsp;',
-                           reverse('admin:add-module', args=[obj.pk]), reverse('admin:view', args=[obj.pk]))
+        return format_html('<a title="View Course" href="{}"><i class="fa fa-eye"></i></a>&nbsp;' 
+                           '<a title="Add Module" href="{}"><i class="fa fa-plus-circle"></i></a>&nbsp;'                           
+                           '<a title="View Students" href="{}"><i class="fa fa-users"></i></a>&nbsp;',
+                           reverse('admin:view', args=[obj.pk]), reverse('admin:add-module', args=[obj.pk]),
+                           reverse('admin:view-students', args=[obj.pk]))
 
     def mark_activated(self, request, queryset):
         queryset.update(is_active=True)
