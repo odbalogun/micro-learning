@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'constance.backends.database',
     'configurations',
     'payments',
+    'smart_selects',
 ]
 
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
@@ -165,3 +166,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 EMAIL_HOST = 'smtp.mail.eu-west-1.awsapps.com'
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
+
+# for smart selects
+USE_DJANGO_JQUERY = True

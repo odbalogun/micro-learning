@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import re_path, reverse
+from django.urls import re_path, reverse, reverse_lazy
 from django.utils.html import format_html
 from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
@@ -14,13 +14,62 @@ class EnrolledInline(admin.StackedInline):
     can_delete = True
 
 
-class EnrolledStudentList(ChangeList):
-    model = Enrolled
+class EnrolledAdmin(admin.ModelAdmin):
+    list_display = ('user', 'course', 'current_module', 'status', 'payment_status', 'date_enrolled', 'enrolled_actions')
+    search_fields = ['user__first_name', 'user__last_name', 'course__name']
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            re_path(
+                r'^(?P<enrolled_id>.+)/promote-next-module/$',
+                self.admin_site.admin_view(self.promote_next_module),
+                name='promote-next-module',
+            ),
+            re_path(
+                r'^(?P<enrolled_id>.+)/enrolled-modules/$',
+                self.admin_site.admin_view(self.enrolled_modules),
+                name='enrolled-modules',
+            ),
+        ]
+        return custom_urls + urls
+
+    def promote_next_module(self, request, enrolled_id, *args, **kwargs):
+        enrolled = self.get_object(request, enrolled_id)
+        if enrolled:
+            # get next module
+            try:
+                module = Modules.objects.filter(course=enrolled.course, order__lt=enrolled.current_module.order)\
+                    .order_by('order').first()
+            except IndexError:
+                self.message_user(request, 'User is already on the last course module', level='error')
+            else:
+                enrolled.current_module_id = module.pk
+                enrolled.save()
+
+                self.message_user(request, "User has been promoted to the next module", level='success')
+            finally:
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER',
+                                                             reverse('admin:courses_enrolled_changelist') +
+                                                             "?course_id={}".format(enrolled.course_id)))
+
+    def enrolled_modules(self, request, enrolled_id, *args, **kwargs):
+        pass
 
     def get_queryset(self, request):
-        if request.GET.get('pk'):
-            return Enrolled.objects.filter(course_id=request.GET.get('pk'))
-        return Enrolled.objects.filter()
+        qs = super().get_queryset(request)
+        if request.GET.get('course_id'):
+            return qs.filter(course_id=request.GET.get('course_id'))
+        return qs
+
+    def enrolled_actions(self, obj):
+        return format_html('<a title="Promote to next module" href="{}"><i class="fa fa-caret-square-o-up"></i></a> '
+                           '<a title="Open previous module" href="{}"><i class="fa fa-caret-square-o-down"></i></a> '
+                           '<a title="Update payment" href="{}"><i class="fa fa-credit-card"></i></a>',
+                           reverse('admin:promote-next-module', args=[obj.pk]), reverse('admin:enrolled-modules', args=[obj.pk]),
+                           reverse('admin:courses_enrolled_changelist'))
+    enrolled_actions.short_description = 'actions'
+    enrolled_actions.allow_tags = True
 
 
 class CourseAdmin(admin.ModelAdmin):
@@ -52,11 +101,6 @@ class CourseAdmin(admin.ModelAdmin):
                 r'^(?P<course_id>.+)/view/$',
                 self.admin_site.admin_view(self.view_course),
                 name='view',
-            ),
-            re_path(
-                r'^(?P<course_id>.+)/view-students/$',
-                self.admin_site.admin_view(self.view_students),
-                name='view-students',
             ),
         ]
         return custom_urls + urls
@@ -106,7 +150,7 @@ class CourseAdmin(admin.ModelAdmin):
                 except form.errors.Error as e:
                     pass
                 else:
-                    self.message_user(request, 'Module created successfully')
+                    self.message_user(request, 'Module created successfully', level='success')
                     url = reverse(
                         'admin:courses_courses_changelist',
                         current_app=self.admin_site.name,
@@ -129,7 +173,7 @@ class CourseAdmin(admin.ModelAdmin):
                            '<a title="Add Module" href="{}"><i class="fa fa-plus-circle"></i></a>&nbsp;'                           
                            '<a title="View Students" href="{}"><i class="fa fa-users"></i></a>&nbsp;',
                            reverse('admin:view', args=[obj.pk]), reverse('admin:add-module', args=[obj.pk]),
-                           reverse('admin:view-students', args=[obj.pk]))
+                           reverse('admin:courses_enrolled_changelist') + "?course_id={}".format(obj.pk))
 
     def mark_activated(self, request, queryset):
         queryset.update(is_active=True)
@@ -154,3 +198,4 @@ class ModuleAdmin(admin.ModelAdmin):
 
 admin.site.register(Courses, CourseAdmin)
 admin.site.register(Modules, ModuleAdmin)
+admin.site.register(Enrolled, EnrolledAdmin)

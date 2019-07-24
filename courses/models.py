@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from safedelete.models import SafeDeleteModel
 from django.template.defaultfilters import slugify
+from smart_selects.db_fields import ChainedForeignKey
 import datetime
 
 
@@ -9,6 +10,11 @@ PAYMENT_STATUS_CHOICES = (
     ('unpaid', 'Unpaid'),
     ('partly', 'Part Payment'),
     ('paid', 'Fully Paid')
+)
+
+ENROLLED_STATUS_CHOICES = (
+    ('ongoing', 'Ongoing'),
+    ('completed', 'Completed')
 )
 
 
@@ -98,11 +104,13 @@ class UserModules(SafeDeleteModel):
 class Enrolled(models.Model):
     course = models.ForeignKey(Courses, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='enrolled_courses')
+    status = models.CharField(max_length=50, choices=ENROLLED_STATUS_CHOICES, default='ongoing')
     payment_status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES)
-    current_module = models.ForeignKey(Modules, on_delete=models.SET_NULL, null=True)
+    current_module = ChainedForeignKey(Modules, chained_field='course', chained_model_field='course', show_all=False,
+                                       auto_choose=True, on_delete=models.SET_NULL, null=True)
     date_enrolled = models.DateTimeField('date enrolled', auto_now_add=True)
 
     class Meta:
         unique_together = ('course', 'user')
-        verbose_name_plural = 'Enrolled Courses'
-        verbose_name = 'Enrolled Course'
+        verbose_name_plural = 'Enrollments'
+        verbose_name = 'Enrollment'

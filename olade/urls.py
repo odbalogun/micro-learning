@@ -27,6 +27,7 @@ admin.site.site_title = 'Olade site admin'      # default: "Django site admin"
 urlpatterns = [
     path('', UserLoginView.as_view()),
     path('admin/', admin.site.urls),
+    path('chaining/', include('smart_selects.urls')),
     path('users/', include('users.urls', namespace='users')),
     path('courses/', include('courses.urls', namespace='courses')),
 ]
