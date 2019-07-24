@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="805722b9-ad26-4497-a26a-263ab9452a20" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/docs/notes.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/courses/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/courses/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/courses/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/courses/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/olade/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/olade/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/olade/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/olade/urls.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,8 +28,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/courses/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="178">
-              <caret line="103" column="6" selection-start-line="103" selection-start-column="6" selection-end-line="103" selection-end-column="6" />
+            <state relative-caret-position="73">
+              <caret line="100" lean-forward="true" selection-start-line="100" selection-end-line="100" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
               </folding>
@@ -56,8 +52,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/courses/admin.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="84">
-              <caret line="34" column="33" selection-start-line="34" selection-start-column="33" selection-end-line="34" selection-end-column="33" />
+            <state relative-caret-position="493">
+              <caret line="98" column="46" lean-forward="true" selection-start-line="98" selection-start-column="46" selection-end-line="98" selection-end-column="46" />
               <folding>
                 <element signature="e#0#32#0" expanded="true" />
               </folding>
@@ -121,8 +117,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/docs/notes.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="63">
-              <caret line="3" column="51" lean-forward="true" selection-start-line="3" selection-start-column="51" selection-end-line="3" selection-end-column="51" />
+            <state relative-caret-position="21">
+              <caret line="1" column="4" selection-start-line="1" selection-start-column="4" selection-end-line="1" selection-end-column="90" />
             </state>
           </provider>
         </entry>
@@ -138,7 +134,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>send</find>
       <find>coun</find>
       <find>insta</find>
       <find>stat</find>
@@ -168,6 +163,7 @@
       <find>status</find>
       <find>save()</find>
       <find>allo</find>
+      <find>curren</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -692,13 +688,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/docs/notes.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="63">
-          <caret line="3" column="51" lean-forward="true" selection-start-line="3" selection-start-column="51" selection-end-line="3" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/lib/python3.6/site-packages/django/contrib/admin/options.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
@@ -723,10 +712,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/docs/notes.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="21">
+          <caret line="1" column="4" selection-start-line="1" selection-start-column="4" selection-end-line="1" selection-end-column="90" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/courses/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="103" column="6" selection-start-line="103" selection-start-column="6" selection-end-line="103" selection-end-column="6" />
+        <state relative-caret-position="73">
+          <caret line="100" lean-forward="true" selection-start-line="100" selection-end-line="100" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
           </folding>
@@ -735,8 +731,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/courses/admin.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="34" column="33" selection-start-line="34" selection-start-column="33" selection-end-line="34" selection-end-column="33" />
+        <state relative-caret-position="493">
+          <caret line="98" column="46" lean-forward="true" selection-start-line="98" selection-start-column="46" selection-end-line="98" selection-end-column="46" />
           <folding>
             <element signature="e#0#32#0" expanded="true" />
           </folding>

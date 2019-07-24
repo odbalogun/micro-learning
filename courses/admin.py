@@ -31,6 +31,11 @@ class EnrolledAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.enrolled_modules),
                 name='enrolled-modules',
             ),
+            re_path(
+                r'^(?P<enrolled_id>.+)/completed-course/$',
+                self.admin_site.admin_view(self.completed_course),
+                name='completed-course',
+            ),
         ]
         return custom_urls + urls
 
@@ -38,23 +43,37 @@ class EnrolledAdmin(admin.ModelAdmin):
         enrolled = self.get_object(request, enrolled_id)
         if enrolled:
             # get next module
-            try:
-                module = Modules.objects.filter(course=enrolled.course, order__lt=enrolled.current_module.order)\
-                    .order_by('order').first()
-            except IndexError:
+            if enrolled.current_module:
+                order = enrolled.current_module.order
+            else:
+                order = 0
+
+            module = Modules.objects.filter(course_id=enrolled.course_id, order__gt=order).order_by('order').first()
+            if not module:
                 self.message_user(request, 'User is already on the last course module', level='error')
             else:
                 enrolled.current_module_id = module.pk
                 enrolled.save()
 
                 self.message_user(request, "User has been promoted to the next module", level='success')
-            finally:
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER',
-                                                             reverse('admin:courses_enrolled_changelist') +
-                                                             "?course_id={}".format(enrolled.course_id)))
+
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER',
+                                                         reverse('admin:courses_enrolled_changelist') +
+                                                         "?course_id={}".format(enrolled.course_id)))
 
     def enrolled_modules(self, request, enrolled_id, *args, **kwargs):
         pass
+
+    def completed_course(self, request, enrolled_id, *args, **kwargs):
+        enrolled = self.get_object(request, enrolled_id)
+        if enrolled:
+            enrolled.status = 'completed'
+            enrolled.save()
+
+            self.message_user(request, "Course status has been successfully updated", level='success')
+        else:
+            self.message_user(request, "Enrollment entry could not be found", level='error')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('admin:courses_enrolled_changelist')))
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -65,9 +84,10 @@ class EnrolledAdmin(admin.ModelAdmin):
     def enrolled_actions(self, obj):
         return format_html('<a title="Promote to next module" href="{}"><i class="fa fa-caret-square-o-up"></i></a> '
                            '<a title="Open previous module" href="{}"><i class="fa fa-caret-square-o-down"></i></a> '
-                           '<a title="Update payment" href="{}"><i class="fa fa-credit-card"></i></a>',
+                           '<a title="Update payment" href="{}"><i class="fa fa-credit-card"></i></a> ' 
+                           '<a title="Mark course as completed" href="{}"><i class="fa fa-check-square"></i></a> ',
                            reverse('admin:promote-next-module', args=[obj.pk]), reverse('admin:enrolled-modules', args=[obj.pk]),
-                           reverse('admin:courses_enrolled_changelist'))
+                           reverse('admin:courses_enrolled_changelist'), reverse('admin:completed-course', args=[obj.pk]))
     enrolled_actions.short_description = 'actions'
     enrolled_actions.allow_tags = True
 
