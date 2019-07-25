@@ -208,12 +208,14 @@ class CourseAdmin(admin.ModelAdmin):
 class ModuleAdmin(admin.ModelAdmin):
     list_display = ('name', 'course', 'order', 'access_code', 'created_by', 'created_at')
     search_fields = ['name', 'course__name']
+    exclude = ('created_at', 'created_by')
     list_filter = ('created_by', 'created_at', 'course')
 
     def save_model(self, request, obj, form, change):
         if getattr(obj, 'created_by', None) is None:
             obj.created_by = request.user
         obj.save()
+
 
 
 admin.site.register(Courses, CourseAdmin)

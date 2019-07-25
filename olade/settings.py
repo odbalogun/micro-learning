@@ -60,8 +60,8 @@ CONSTANCE_ADDITIONAL_FIELDS = {
 }
 
 CONSTANCE_CONFIG = {
-    'APP_EMAIL_ADDRESS': ('oduntan.balogun@carrot.ng', 'Email address by the application to send out emails'),
-    'APP_EMAIL_PASSWORD': ('carrot@18', 'Password for application email address', 'password'),
+    'APP_EMAIL_ADDRESS': ('test@test.ng', 'Email address by the application to send out emails'),
+    'APP_EMAIL_PASSWORD': ('test123', 'Password for application email address', 'password'),
     'STRIPE_USERNAME': ('stripe', 'Username for Olade Stripe account'),
     'STRIPE_API_KEY': ('stripe', 'API key for Olade Stripe account', str),
     'ONE_DRIVE_API_KEY': ('one-drive', 'API key for Olade One Drive account', str),
@@ -105,9 +105,17 @@ WSGI_APPLICATION = 'olade.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': 'olade',
+        'USER': 'olade_user',
+        'PASSWORD': 'olade_19',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'PORT': '3306',
     }
 }
 
@@ -163,9 +171,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # mail settings
-EMAIL_HOST = 'smtp.mail.eu-west-1.awsapps.com'
-EMAIL_PORT = 465
-EMAIL_USE_SSL = True
+EMAIL_HOST = "smtp.outlook.office365.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 
 # for smart selects
 USE_DJANGO_JQUERY = True

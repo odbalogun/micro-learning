@@ -58,7 +58,7 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
             "last_name": self.last_name
         }
 
-    def email_user(self, subject, from_email='oduntan.balogun@carrot.ng', **kwargs):
+    def email_user(self, subject, from_email=custom_config.APP_EMAIL_ADDRESS, **kwargs):
         """
         Send an email to this user.
         Kwargs can contain the following:
@@ -67,8 +67,8 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
         html_message = render_to_string('emails/template.html', kwargs)
         plain_message = strip_tags(html_message)
 
-        send_mail(subject, plain_message, from_email, [self.email], auth_user='oduntan.balogun@carrot.ng',
-                  auth_password='carrot@18', html_message=html_message)
+        send_mail(subject, plain_message, from_email, [self.email], auth_user=custom_config.APP_EMAIL_ADDRESS,
+                  auth_password=custom_config.APP_EMAIL_PASSWORD, html_message=html_message)
 
     enrolled_courses_count.short_description = 'Courses count'
 
