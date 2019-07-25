@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from safedelete.models import SafeDeleteModel
 from django.core.mail import send_mail
 from .managers import UserManager
@@ -56,10 +58,17 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
             "last_name": self.last_name
         }
 
-    def email_user(self, subject, message, from_email='oduntan.balogun@carrot.ng', **kwargs):
-        """Send an email to this user."""
-        send_mail(subject, message, from_email, [self.email], auth_user='oduntan.balogun@carrot.ng',
-                  auth_password='carrot@18', **kwargs)
+    def email_user(self, subject, from_email='oduntan.balogun@carrot.ng', **kwargs):
+        """
+        Send an email to this user.
+        Kwargs can contain the following:
+        title; subtitle; content; button_link; button_value
+        """
+        html_message = render_to_string('emails/template.html', kwargs)
+        plain_message = strip_tags(html_message)
+
+        send_mail(subject, plain_message, from_email, [self.email], auth_user='oduntan.balogun@carrot.ng',
+                  auth_password='carrot@18', html_message=html_message)
 
     enrolled_courses_count.short_description = 'Courses count'
 
@@ -83,5 +92,5 @@ def post_save_user_receiver(sender, instance, created, **kwargs):
     """
     if created and instance.created_by:
         print("here II")
-        instance.email_user("Your account has been created",
-                            "Your Olade has been created. Your password is {}".format(instance._password))
+        instance.email_user(subject="Your account has been created",
+                            content="Your Olade has been created. Your password is {}".format(instance._password))
