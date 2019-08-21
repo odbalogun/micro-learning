@@ -23,9 +23,9 @@ class UserAdmin(admin.ModelAdmin):
         obj.created_by = request.user
         obj.save()
 
-        obj.email_user(subject="Your account has been created", title="Your account has been created", 
-                    subtitle="Your account has been created", 
-                    content="Your Olade account has been created. Your password is {}".format(token))
+        obj.email_user(subject="Your account has been created", title="Your account has been created",
+                       subtitle="Your account has been created",
+                       content="Your Olade account has been created. Your password is {}".format(token))
 
     def get_queryset(self, request):
         return self.model.objects.filter(is_staff=True)

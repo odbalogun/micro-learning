@@ -67,8 +67,12 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
         html_message = render_to_string('emails/template.html', kwargs)
         plain_message = strip_tags(html_message)
 
-        send_mail(subject, plain_message, from_email, [self.email], auth_user=custom_config.APP_EMAIL_ADDRESS,
-                  auth_password=custom_config.APP_EMAIL_PASSWORD, html_message=html_message)
+        send_mail(subject, plain_message, "training@oladeconsulting.com", [self.email], auth_user="training@oladeconsulting.com",
+                  auth_password="Carrot123#", html_message=html_message)
+
+
+        # send_mail(subject, plain_message, from_email, [self.email], auth_user=custom_config.APP_EMAIL_ADDRESS,
+        #           auth_password=custom_config.APP_EMAIL_PASSWORD, html_message=html_message)
 
     enrolled_courses_count.short_description = 'Courses count'
 
