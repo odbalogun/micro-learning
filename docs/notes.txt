@@ -2,3 +2,6 @@ Install django-smart-selects by using:
     pip install git+https://github.com/digi604/django-smart-selects.git@js-unlinting-fixes
 
     This fixes the "chainedfk is not defined" error
+
+Install django-suit by using:
+    pip install https://github.com/darklow/django-suit/tarball/v2
