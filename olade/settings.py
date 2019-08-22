@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'configurations',
     'payments',
     'smart_selects',
+    'widget_tweaks',
 ]
 
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
