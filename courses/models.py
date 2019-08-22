@@ -114,3 +114,6 @@ class Enrolled(models.Model):
         unique_together = ('course', 'user')
         verbose_name_plural = 'Enrollments'
         verbose_name = 'Enrollment'
+
+    def __str__(self):
+        return "{}: {}".format(self.course, self.user)

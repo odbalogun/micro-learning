@@ -1,4 +1,4 @@
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, UpdateView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from django.contrib.auth.views import LoginView, LogoutView, FormView
@@ -42,6 +42,24 @@ class UserChangePasswordView(FormView):
         update_session_auth_hash(self.request, user)
 
         messages.success(self.request, message="Your password has been changed successfully")
+        return super().form_valid(form)
+
+
+class ProfileView(UpdateView):
+    model = User
+    template_name = 'users/my_profile.html'
+    fields = ['first_name', 'last_name', 'phone_number', 'address']
+    success_url = reverse_lazy("users:my-profile")
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return self.model.objects.get(pk=self.request.user.pk)
+
+    def form_valid(self, form):
+        messages.success(self.request, message="Your profile has been successfully updated")
         return super().form_valid(form)
 
 

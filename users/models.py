@@ -14,6 +14,8 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
     email = models.EmailField('email address', unique=True)
     first_name = models.CharField('first name', max_length=100)
     last_name = models.CharField('last name', max_length=100)
+    phone_number = models.CharField('phone number', max_length=20, null=True)
+    address = models.TextField('address', null=True)
     created_at = models.DateTimeField('date created', auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     is_active = models.BooleanField('active', default=True)

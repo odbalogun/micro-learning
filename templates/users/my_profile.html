@@ -1,0 +1,53 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %} Olade - My Profile {% endblock %}
+
+{% block page-title %} My Profile {% endblock %}
+{% block breadcrumb %} My Profile {% endblock %}
+
+{% block content %}
+<!-- Begin Row -->
+<div class="row flex-row">
+    <div class="col-xl-12 col-12">
+        <!-- Sorting -->
+        <div class="widget has-shadow">
+            <div class="widget-header bordered no-actions d-flex align-items-center">
+                <h4>Update Profile</h4>
+            </div>
+            <div class="widget-body">
+                <form method="post" class="form-horizontal">
+                    {% csrf_token %}
+                    <div class="form-group row d-flex align-items-center mb-5">
+                        <label class="col-lg-3 form-control-label">{{ form.first_name.label }}</label>
+                        <div class="col-lg-9">
+                            <input type="text" class="form-control" name="first_name">
+                            {{ form.first_name }}
+                        </div>
+                    </div>
+                    <div class="form-group row d-flex align-items-center mb-5">
+                        <label class="col-lg-3 form-control-label">Last name</label>
+                        <div class="col-lg-9">
+                            <input type="text" class="form-control" name="last_name">
+                        </div>
+                    </div>
+                    <div class="form-group row d-flex align-items-center mb-5">
+                        <label class="col-lg-3 form-control-label">Phone number</label>
+                        <div class="col-lg-9">
+                            <input type="text" class="form-control" name="phone_number">
+                        </div>
+                    </div>
+                    <div class="form-group row d-flex align-items-center mb-5">
+                        <label class="col-lg-3 form-control-label"></label>
+                        <div class="col-lg-9">
+                            <button type="submit" class="btn btn-success mr-1 mb-2">Update Profile</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- End Sorting -->
+    </div>
+</div>
+<!-- End Row -->
+{% endblock %}
