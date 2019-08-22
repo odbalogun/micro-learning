@@ -14,7 +14,7 @@
 
 {% for field in form.visible_fields %}
     <div class="form-group row d-flex align-items-center mb-5">
-        <label class="col-lg-3 form-control-label">{{ field.label_tag }}</label>
+        <label class="col-lg-3 form-control-label align-top">{{ field.label }}</label>
 
         {% if form.is_bound %}
             {% if field.errors %}
