@@ -73,6 +73,11 @@
                                         <img src="{% static 'frontend/assets/img/avatar/user_avatar.png' %}" alt="..." class="rounded-circle">
                                     </li>
                                     <li>
+                                        <a href="{% url 'users:my-profile' %}" class="dropdown-item">
+                                            My Profile
+                                        </a>
+                                    </li>
+                                    <li>
                                         <a href="{% url 'users:change-password' %}" class="dropdown-item">
                                             Change Password
                                         </a>
@@ -101,6 +106,7 @@
                         </ul>
                         <span class="heading">User Actions</span>
                         <ul class="list-unstyled">
+                            <li><a href="{% url 'users:my-profile' %}"><i class="la la-user"></i><span>My Profile</span></a></li>
                             <li><a href="{% url 'users:change-password' %}"><i class="la la-cog"></i><span>Change Password</span></a></li>
                             <li><a href="{% url 'users:logout' %}"><i class="la la-sign-out"></i><span>Logout</span></a></li>
                         </ul>
