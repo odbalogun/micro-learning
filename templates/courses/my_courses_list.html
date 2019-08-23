@@ -38,7 +38,10 @@
                                 <td>{{ row.course }}</td>
                                 <td>{{ row.current_module }}</td>
                                 <td>{{ row.date_enrolled }}</td>
-                                <td>Ongoing</td>
+                                <td>{{ row.status }}</td>
+                                <td>
+                                    {{ row.course.display_fee }}
+                                </td>
                                 <td>
                                     <span style="width:100px;">
                                         {% if row.payment_status == 'paid' %}
@@ -50,7 +53,6 @@
                                         {% endif %}
                                     </span>
                                 </td>
-                                <td>{{ row.course.display_fee }}</td>
                                 <td class="td-actions">
                                     <!--
                                     <a href="#"><i class="la la-edit edit"></i></a>
