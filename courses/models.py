@@ -101,7 +101,7 @@ class UserModules(SafeDeleteModel):
         unique_together = ('user', 'module')
 
 
-class Enrolled(models.Model):
+class Enrolled(SafeDeleteModel):
     course = models.ForeignKey(Courses, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='enrolled_courses')
     status = models.CharField(max_length=50, choices=ENROLLED_STATUS_CHOICES, default='ongoing')
