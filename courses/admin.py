@@ -217,7 +217,6 @@ class ModuleAdmin(admin.ModelAdmin):
         obj.save()
 
 
-
 admin.site.register(Courses, CourseAdmin)
 admin.site.register(Modules, ModuleAdmin)
 admin.site.register(Enrolled, EnrolledAdmin)
