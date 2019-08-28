@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.admin.views.main import ChangeList
 from .models import Courses, Modules, Enrolled
 from .forms import ModuleForm
+from payments.forms import PaymentForm
 
 
 class EnrolledInline(admin.StackedInline):
@@ -36,6 +37,11 @@ class EnrolledAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.completed_course),
                 name='completed-course',
             ),
+            re_path(
+                r'^(?P<enrolled_id>.+)/add-payment/$',
+                self.admin_site.admin_view(self.process_add_payment),
+                name='add-payment',
+            ),
         ]
         return custom_urls + urls
 
@@ -64,6 +70,46 @@ class EnrolledAdmin(admin.ModelAdmin):
     def enrolled_modules(self, request, enrolled_id, *args, **kwargs):
         pass
 
+    def process_add_payment(self, request, enrolled_id, *args, **kwargs):
+        return self.process_payment_form(
+            request=request,
+            enrolled_id=enrolled_id,
+            action_form=PaymentForm,
+            action_title='Add Payment',
+        )
+
+    def process_payment_form(self, request, enrolled_id, action_form, action_title):
+        enrolled = self.get_object(request, enrolled_id)
+
+        if request.method != 'POST':
+            form = action_form(initial={'enrolled': enrolled_id, 'created_by': request.user.id})
+        else:
+            form = action_form(request.POST, initial={'enrolled': enrolled_id, 'created_by': request.user.id})
+
+            if form.is_valid():
+                try:
+                    form.save()
+                except form.errors.Error as e:
+                    pass
+                else:
+                    self.message_user(request, 'Payment created successfully', level='success')
+                    url = reverse(
+                        'admin:courses_enrolled_changelist',
+                        current_app=self.admin_site.name,
+                    )
+                    return HttpResponseRedirect(url)
+
+        context = self.admin_site.each_context(request)
+        context['opts'] = self.model._meta
+        context['form'] = form
+        context['enrolled'] = enrolled
+        context['title'] = action_title
+        return TemplateResponse(
+            request,
+            'admin/courses/add_payment.html',
+            context,
+        )
+
     def completed_course(self, request, enrolled_id, *args, **kwargs):
         enrolled = self.get_object(request, enrolled_id)
         if enrolled:
@@ -81,13 +127,31 @@ class EnrolledAdmin(admin.ModelAdmin):
             return qs.filter(course_id=request.GET.get('course_id'))
         return qs
 
+    def get_available_actions(self, obj):
+        links = ''
+
+        if obj.status != 'completed':
+            # check if user's on last module
+            module = Modules.objects.filter(course_id=obj.course_id,
+                                            order__gt=obj.current_module.order).order_by('order').first()
+            if module:
+                links += '<a title="Promote to next module" href="{}"><i class="fa fa-caret-square-o-up"></i></a> '.\
+                    format(reverse('admin:promote-next-module', args=[obj.pk]))
+
+        links += '<a title="Open specific module" href="{}"><i class="fa fa-folder-open"></i></a> '\
+            .format(reverse('admin:enrolled-modules', args=[obj.pk]))
+
+        links += '<a title="Add payment" href="{}"><i class="fa fa-credit-card"></i></a> '\
+            .format(reverse('admin:add-payment', args=[obj.pk]))
+
+        if obj.status != 'completed':
+            links += '<a title="Mark course as completed" href="{}"><i class="fa fa-check-square"></i></a> '.\
+                format(reverse('admin:completed-course', args=[obj.pk]))
+
+        return links
+
     def enrolled_actions(self, obj):
-        return format_html('<a title="Promote to next module" href="{}"><i class="fa fa-caret-square-o-up"></i></a> '
-                           '<a title="Open previous module" href="{}"><i class="fa fa-caret-square-o-down"></i></a> '
-                           '<a title="Update payment" href="{}"><i class="fa fa-credit-card"></i></a> ' 
-                           '<a title="Mark course as completed" href="{}"><i class="fa fa-check-square"></i></a> ',
-                           reverse('admin:promote-next-module', args=[obj.pk]), reverse('admin:enrolled-modules', args=[obj.pk]),
-                           reverse('admin:courses_enrolled_changelist'), reverse('admin:completed-course', args=[obj.pk]))
+        return format_html(self.get_available_actions(obj))
     enrolled_actions.short_description = 'actions'
     enrolled_actions.allow_tags = True
 
