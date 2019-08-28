@@ -108,7 +108,7 @@ venv.bak/
 .mypy_cache/
 
 # pycharm files
-.idea/
+.idea/*
 
 # static files
 staticfiles/*

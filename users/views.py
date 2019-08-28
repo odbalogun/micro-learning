@@ -48,7 +48,7 @@ class UserChangePasswordView(FormView):
 class ProfileView(UpdateView):
     model = User
     template_name = 'users/my_profile.html'
-    fields = ['first_name', 'last_name', 'phone_number', 'address']
+    fields = ['first_name', 'last_name', 'phone_number', 'address', 'identity']
     success_url = reverse_lazy("users:my-profile")
 
     @method_decorator(login_required)

@@ -8,6 +8,14 @@ from safedelete.models import SafeDeleteModel
 from django.core.mail import send_mail
 from .managers import UserManager
 from constance import config as custom_config
+import datetime
+
+
+def identity_document_path(instance, filename):
+    # for file uploads
+    return 'documents/users/{0}/{1}/{2}/{3}'.format(datetime.datetime.now().year,
+                                                    datetime.datetime.now().month,
+                                                    datetime.datetime.now().day, filename)
 
 
 class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
@@ -20,6 +28,7 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     is_active = models.BooleanField('active', default=True)
     is_staff = models.BooleanField('staff status', default=False)
+    identity = models.FileField('identification document', upload_to=identity_document_path, null=True)
 
     objects = UserManager()
 
