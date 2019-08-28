@@ -27,6 +27,9 @@ class PaymentLog(models.Model):
     def user_name(self):
         return self.enrolled.user
 
+    def display_amount_paid(self):
+        return "${:0,.2f}".format(self.amount_paid)
+
     class Meta:
         verbose_name = 'payment'
         verbose_name_plural = 'payments'

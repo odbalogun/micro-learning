@@ -1,0 +1,64 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %} Olade - My Payment History {% endblock %}
+{% block custom_css %}
+    <link rel="stylesheet" href="{% static 'frontend/assets/css/datatables/datatables.min.css' %}">
+{% endblock %}
+
+{% block page-title %} My Payment History {% endblock %}
+{% block breadcrumb %} Payment History {% endblock %}
+
+{% block content %}
+<!-- Begin Row -->
+<div class="row flex-row">
+    <div class="col-xl-12 col-12">
+        <!-- Sorting -->
+        <div class="widget has-shadow">
+            <div class="widget-header bordered no-actions d-flex align-items-center">
+                <h4>Payment History</h4>
+            </div>
+            <div class="widget-body">
+                <div class="table-responsive">
+                    <table id="sorting-table" class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Payment Type</th>
+                                <th>Amount Paid</th>
+                                <th>Date Paid</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in object_list %}
+                            <tr>
+                                <td>{{ row.enrolled.course }}</td>
+                                <td>{{ row.get_payment_type_display }}</td>
+                                <td>{{ row.display_amount_paid }}</td>
+                                <td>{{ row.created_at }}</td>
+                                <td class="td-actions">
+                                    <a href="#" title="Download receipt">
+                                        <span class="badge-text badge-text-small info">
+                                            Download
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- End Sorting -->
+    </div>
+</div>
+<!-- End Row -->
+{% endblock %}
+
+{% block custom_js %}
+    <script src="{% static 'frontend/assets/vendors/js/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'frontend/assets/vendors/js/datatables/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'frontend/assets/js/components/tables/tables.js' %}"></script>
+{% endblock %}
