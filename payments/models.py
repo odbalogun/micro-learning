@@ -35,4 +35,4 @@ class PaymentLog(models.Model):
         verbose_name_plural = 'payments'
 
     reference_no.short_description = 'Payment Reference'
-    reference_no.description = 'Payment Reference'
+    display_amount_paid.short_description = 'Amount Paid'

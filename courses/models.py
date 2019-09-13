@@ -3,6 +3,8 @@ from django.conf import settings
 from safedelete.models import SafeDeleteModel
 from django.template.defaultfilters import slugify
 from smart_selects.db_fields import ChainedForeignKey
+from tinymce.models import HTMLField
+from django.urls import reverse
 import datetime
 
 
@@ -27,8 +29,10 @@ def course_image_path(instance, filename):
 class Courses(SafeDeleteModel):
     name = models.CharField('name', null=False, max_length=100)
     slug = models.CharField('slug', null=False, max_length=100)
+    course_code = models.CharField('course code', null=True, blank=True, max_length=50)
     short_description = models.TextField('short description', max_length=300)
-    description = models.TextField('description', blank=False)
+    outline = HTMLField('outline', blank=True, null=True)
+    description = HTMLField('description', blank=False)
     course_fee = models.DecimalField('course fee', decimal_places=2, max_digits=10)
     image = models.ImageField('image', upload_to=course_image_path)
     is_active = models.BooleanField('is active', default=True)
@@ -60,6 +64,9 @@ class Courses(SafeDeleteModel):
         self.slug = slugify(self.name)
         super(Courses, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse('courses:detail', kwargs={'pk': self.pk})
+
     class Meta:
         verbose_name = 'course'
         verbose_name_plural = 'courses'
@@ -78,7 +85,7 @@ class Modules(SafeDeleteModel):
     order = models.IntegerField('position')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_modules', on_delete=models.CASCADE)
     created_at = models.DateTimeField('created at', auto_now_add=True)
-    students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='modules', through="UserModules")
+    students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='modules', through="EnrolledModules")
 
     def __str__(self):
         return "{}: {}".format(self.order, self.name)
@@ -88,17 +95,6 @@ class Modules(SafeDeleteModel):
         # order_by = 'order'
         verbose_name = 'module'
         verbose_name_plural = 'modules'
-
-
-class UserModules(SafeDeleteModel):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    module = models.ForeignKey(Modules, on_delete=models.CASCADE)
-    course = models.ForeignKey(Courses, related_name='user_modules', on_delete=models.CASCADE)
-    date_activated = models.DateTimeField('date activated', auto_now_add=True)
-    expires = models.DateTimeField('date expires')
-
-    class Meta:
-        unique_together = ('user', 'module')
 
 
 class Enrolled(SafeDeleteModel):
@@ -117,3 +113,19 @@ class Enrolled(SafeDeleteModel):
 
     def __str__(self):
         return "{}: {}".format(self.course, self.user)
+
+
+class EnrolledModules(SafeDeleteModel):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    module = models.ForeignKey(Modules, on_delete=models.CASCADE)
+    enrolled = models.ForeignKey(Enrolled, related_name='modules', on_delete=models.CASCADE)
+    date_activated = models.DateTimeField('date activated', auto_now_add=True)
+    days = models.IntegerField('open for', default=7)
+    expires = models.DateTimeField('date expires')
+
+    class Meta:
+        unique_together = ('user', 'module')
+
+    def set_expires(self):
+        if getattr(self, 'days'):
+            self.expires = datetime.datetime.now() + datetime.timedelta(days=self.days)

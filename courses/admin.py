@@ -1,11 +1,11 @@
 from django.contrib import admin
-from django.urls import re_path, reverse, reverse_lazy
+from django.urls import re_path, reverse
 from django.utils.html import format_html
 from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
-from django.contrib.admin.views.main import ChangeList
-from .models import Courses, Modules, Enrolled
-from .forms import ModuleForm
+from .models import Courses, Modules, Enrolled, EnrolledModules
+from .forms import ModuleForm, OpenEnrolledModuleForm
+from .tasks import set_current_module
 from payments.forms import PaymentForm
 
 
@@ -61,6 +61,9 @@ class EnrolledAdmin(admin.ModelAdmin):
                 enrolled.current_module_id = module.pk
                 enrolled.save()
 
+                # save
+                set_current_module(module, enrolled)
+
                 self.message_user(request, "User has been promoted to the next module", level='success')
 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER',
@@ -68,7 +71,38 @@ class EnrolledAdmin(admin.ModelAdmin):
                                                          "?course_id={}".format(enrolled.course_id)))
 
     def enrolled_modules(self, request, enrolled_id, *args, **kwargs):
-        pass
+        enrolled = self.get_object(request, enrolled_id)
+
+        if request.method != 'POST':
+            form = OpenEnrolledModuleForm(initial={'enrolled': enrolled.id, 'user': enrolled.user_id, 'expires': 7})
+        else:
+            form = OpenEnrolledModuleForm(request.POST, initial={'enrolled': enrolled.id,
+                                                                 'user': enrolled.user_id, 'expires': 7})
+            if form.is_valid():
+                form.save()
+                enrolled.current_module = form.cleaned_data.get('module')
+                enrolled.save()
+
+                # set_current_module(module=Modules.objects.get)
+
+                self.message_user(request, 'The user\'s module has been updated', level='success')
+                url = reverse(
+                    'admin:courses_enrolled_changelist',
+                    current_app=self.admin_site.name,
+                )
+                return HttpResponseRedirect(url)
+
+        form.fields['module'].queryset = Modules.objects.filter(course_id=enrolled.course_id)
+        context = self.admin_site.each_context(request)
+        context['opts'] = self.model._meta
+        context['form'] = form
+        context['enrolled'] = enrolled
+        context['title'] = "Open Specific Module"
+        return TemplateResponse(
+            request,
+            'admin/enrolled/view_modules.html',
+            context,
+        )
 
     def process_add_payment(self, request, enrolled_id, *args, **kwargs):
         return self.process_payment_form(
@@ -157,7 +191,7 @@ class EnrolledAdmin(admin.ModelAdmin):
 
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'display_fee', 'students_count', 'modules_count', 'is_active',
+    list_display = ('name', 'course_code', 'slug', 'display_fee', 'students_count', 'modules_count', 'is_active',
                     'created_by', 'created_at', 'course_actions')
     search_fields = ('name', )
     list_filter = ('created_by', 'created_at')

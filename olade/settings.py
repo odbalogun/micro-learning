@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['68.183.198.69', 'localhost']
 
 INSTALLED_APPS = [
     'olade.apps.SuitConfig',
+    # 'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'safedelete',
+    'tinymce',
     'users',
     'courses',
     'constance',

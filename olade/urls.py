@@ -31,6 +31,7 @@ urlpatterns = [
     path('users/', include('users.urls', namespace='users')),
     path('courses/', include('courses.urls', namespace='courses')),
     path('payments/', include('payments.urls', namespace='payments')),
+    path('tinymce/', include('tinymce.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

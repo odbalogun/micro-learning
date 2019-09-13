@@ -1,10 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.urls import reverse_lazy
 from .models import User, Student
 from .forms import AdminUserForm
 from courses.models import Enrolled
 from courses.admin import EnrolledInline
 from olade.utilities import random_string
+from django.contrib.sites.shortcuts import get_current_site
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -23,9 +25,13 @@ class UserAdmin(admin.ModelAdmin):
         obj.created_by = request.user
         obj.save()
 
+        current_site = get_current_site(request)
+        domain = current_site.domain
         obj.email_user(subject="Your account has been created", title="Your account has been created",
                        subtitle="Your account has been created",
-                       content="Your Olade account has been created. Your password is {}".format(token))
+                       content="Your Olade account has been created. Your password is {}. To login, please click on "
+                               "the button below".format(token), button_value="Log in", button_link="http://{}{}".
+                       format(domain, reverse_lazy("users:login")))
 
     def get_queryset(self, request):
         return self.model.objects.filter(is_staff=True)

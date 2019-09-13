@@ -6,42 +6,64 @@
     <link rel="stylesheet" href="{% static 'frontend/assets/css/datatables/datatables.min.css' %}">
 {% endblock %}
 
-{% block page-title %} My Courses {% endblock %}
-{% block breadcrumb %} My Courses {% endblock %}
+{% block page-title %} {{ object.course.course_code }}: {{ object.course }} {% endblock %}
+{% block breadcrumb %} {{ object.course.course_code }}: {{ object.course }} {% endblock %}
+
 
 {% block content %}
-<!-- Begin Row -->
-<div class="row flex-row">
-    <div class="col-xl-12 col-12">
-        <!-- Sorting -->
-        <div class="widget has-shadow">
-            <div class="widget-header bordered no-actions d-flex align-items-center">
-                <h3>Enrolled Courses</h3>
+    <div class="row flex-row">
+        <div class="col-xl-9 col-9">
+            <div class="widget has-shadow">
+                <div class="widget-header bordered no-actions d-flex align-items-center">
+                    <h3>Course Content</h3>
+                </div>
+                <div class="widget-body">
+                    <div>
+                        {{ object.course.description | safe }}
+                    </div>
+                </div>
             </div>
-            <div class="widget-body">
-                <div class="table-responsive">
+        </div>
+        <div class="col-xl-3 col-3">
+            <div class="widget has-shadow">
+                <div class="widget-header bordered no-actions d-flex align-items-center">
+                    <h3>Course Outline</h3>
+                </div>
+                <div class="widget-body">
+                    <div>
+                        {{ object.course.outline | safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-12 col-12">
+            <div class="widget has-shadow">
+                <div class="widget-header bordered no-actions d-flex align-items-center">
+                    <h3>Course Modules</h3>
+                </div>
+                <div class="widget-body">
+                    <div class="table-responsive">
                     <table id="sorting-table" class="table mb-0">
                         <thead>
                             <tr>
-                                <th>Course</th>
-                                <th>Current Module</th>
-                                <th>Date Registered</th>
+                                <th>#</th>
+                                <th>Module</th>
+                                <th>Date Access Granted</th>
+                                <th>Date Expired</th>
                                 <th><span style="width:100px;">Status</span></th>
-                                <th>Fee</th>
-                                <th><span style="width:100px;">Payment Status</span></th>
-                                <th>Actions</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for row in object_list %}
+                            {% for row in object.course.modules.all %}
                             <tr>
-                                <td><a href="{{ row.course.get_absolute_url }}">{{ row.course }}</a></td>
-                                <td>{{ row.current_module }}</td>
-                                <td>{{ row.date_enrolled }}</td>
-                                <td>{{ row.get_status_display }}</td>
+                                <td>{{ row.order }}</td>
+                                <td>{{ row.name }}</td>
                                 <td>
-                                    {{ row.course.display_fee }}
+
                                 </td>
+                                <td></td>
+                                <td></td>
                                 <td>
                                     <span style="width:100px;">
                                         {% if row.payment_status == 'paid' %}
@@ -55,23 +77,15 @@
                                             </span>
                                     </span>
                                 </td>
-                                <td class="td-actions">
-                                    <!--
-                                    <a href="#"><i class="la la-edit edit"></i></a>
-                                    <a href="#"><i class="la la-close delete"></i></a>
-                                    -->
-                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- End Sorting -->
     </div>
-</div>
-<!-- End Row -->
 {% endblock %}
 
 {% block custom_js %}
