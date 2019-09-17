@@ -35,7 +35,7 @@ ALLOWED_HOSTS = ['68.183.198.69', 'localhost']
 
 INSTALLED_APPS = [
     'olade.apps.SuitConfig',
-    # 'suit',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

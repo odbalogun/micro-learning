@@ -17,7 +17,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework import routers
+
+
 from users.views import UserLoginView
+from courses.api_views import CourseApiViewSet
+
+
+# set up rest framework router
+router = routers.DefaultRouter()
+router.register(r'courses', CourseApiViewSet)
 
 # overwrite admin template variables
 admin.site.site_header = 'Olade Administration'                    # default: "Django Administration"
@@ -26,6 +35,8 @@ admin.site.site_title = 'Olade site admin'      # default: "Django site admin"
 
 urlpatterns = [
     path('', UserLoginView.as_view()),
+    path('api/', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
     path('chaining/', include('smart_selects.urls')),
     path('users/', include('users.urls', namespace='users')),
