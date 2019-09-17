@@ -14,13 +14,13 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'email', 'is_active', 'is_superuser', 'created_at')
     fields = ('email', 'first_name', 'last_name', 'is_active')
     list_filter = ('is_superuser', 'created_at', 'is_active')
-    exclude = ('is_superuser', 'is_staff', 'groups', 'user_permissions', 'last_login')
+    exclude = ('is_staff', 'groups', 'user_permissions', 'last_login')
 
     def save_model(self, request, obj, form, change):
         token = random_string(8)
 
         obj.is_staff = True
-        obj.is_superuser = False
+        obj.is_superuser = True
         obj.set_password(token)
         obj.created_by = request.user
         obj.save()
@@ -31,7 +31,7 @@ class UserAdmin(admin.ModelAdmin):
                        subtitle="Your account has been created",
                        content="Your Olade account has been created. Your password is {}. To login, please click on "
                                "the button below".format(token), button_value="Log in", button_link="http://{}{}".
-                       format(domain, reverse_lazy("users:login")))
+                       format(domain, reverse_lazy("admin:index")))
 
     def get_queryset(self, request):
         return self.model.objects.filter(is_staff=True)
@@ -54,9 +54,12 @@ class StudentAdmin(admin.ModelAdmin):
         obj.created_by = request.user
         obj.save()
 
-        obj.email_user(subject="Your account has been created", title="Your account has been created", 
-                    subtitle="Your account has been created", 
-                    content="Your Olade account has been created. Your password is {}".format(token))
+        current_site = get_current_site(request)
+        domain = current_site.domain
+        obj.email_user(subject="Your account has been created", title="Your account has been created",
+                       subtitle="Your account has been created",
+                       content="Your Olade account has been created. Your password is {}".format(token),
+                       button_value="Log in", button_link="http://{}{}".format(domain, reverse_lazy("users:login")))
 
     def get_queryset(self, request):
         return self.model.objects.filter(is_staff=False)
