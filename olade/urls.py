@@ -21,12 +21,13 @@ from rest_framework import routers
 
 
 from users.views import UserLoginView
-from courses.api_views import CourseApiViewSet
+from courses.api_views import CourseApiViewSet, NewEnrolleeApiViewSet
 
 
 # set up rest framework router
 router = routers.DefaultRouter()
 router.register(r'courses', CourseApiViewSet)
+router.register(r'new-enrollee', base_name='new-enrollee', viewset=NewEnrolleeApiViewSet)
 
 # overwrite admin template variables
 admin.site.site_header = 'Olade Administration'                    # default: "Django Administration"

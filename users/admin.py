@@ -3,7 +3,6 @@ from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
 from .models import User, Student
 from .forms import AdminUserForm
-from courses.models import Enrolled
 from courses.admin import EnrolledInline
 from olade.utilities import random_string
 from django.contrib.sites.shortcuts import get_current_site

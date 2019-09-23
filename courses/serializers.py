@@ -15,3 +15,11 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Courses
         fields = ['id', 'name', 'course_code', 'slug', 'image', 'short_description', 'overview', 'outline',
                   'pre_requisites', 'strategy', 'tools_and_technology', 'learning_and_outcome', 'course_fee', 'modules']
+
+
+class NewEnrolleeSerializer(serializers.Serializer):
+    first_name = serializers.CharField(max_length=100, required=True)
+    last_name = serializers.CharField(max_length=100, required=True)
+    phone_number = serializers.CharField(max_length=100, required=False)
+    email = serializers.EmailField(max_length=100, required=True)
+    course_id = serializers.IntegerField(required=True)

@@ -15,6 +15,7 @@ PAYMENT_STATUS_CHOICES = (
 )
 
 ENROLLED_STATUS_CHOICES = (
+    ('pending', 'Pending'),
     ('ongoing', 'Ongoing'),
     ('completed', 'Completed')
 )
@@ -56,6 +57,10 @@ class Courses(SafeDeleteModel):
         if self.modules_count() == 0:
             return 0
         return self.modules.aggregate(models.Max('order'))['order__max']
+
+    @property
+    def get_first_module(self):
+        return self.modules.order_by('order').first()
 
     def __str__(self):
         return self.name
@@ -104,8 +109,8 @@ class Modules(SafeDeleteModel):
 class Enrolled(SafeDeleteModel):
     course = models.ForeignKey(Courses, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='enrolled_courses')
-    status = models.CharField(max_length=50, choices=ENROLLED_STATUS_CHOICES, default='ongoing')
-    payment_status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES)
+    status = models.CharField(max_length=50, choices=ENROLLED_STATUS_CHOICES, default='pending')
+    payment_status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES, default='unpaid')
     current_module = ChainedForeignKey(Modules, chained_field='course', chained_model_field='course', show_all=False,
                                        auto_choose=True, on_delete=models.SET_NULL, null=True)
     date_enrolled = models.DateTimeField('date enrolled', auto_now_add=True)
