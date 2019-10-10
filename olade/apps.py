@@ -10,6 +10,9 @@ class SuitConfig(DjangoSuitConfig):
             app='courses'
         ),
         ParentItem(
+            app='discounts'
+        ),
+        ParentItem(
             app='payments'
         ),
         ParentItem(
