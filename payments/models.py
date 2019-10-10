@@ -4,8 +4,9 @@ from courses.models import Enrolled
 
 
 PAYMENT_TYPE_CHOICES = (
-    ('stripe', 'Stripe'),
-    ('bank-transfer', 'Bank Transfer'),
+    ('stripe', 'Online Payment (Stripe)'),
+    ('cash', 'Cash'),
+    ('bank-transfer', 'Money Transfer'),
     ('cheque', 'Cheque'),
     ('other', 'Other'),
 )
