@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'tinymce',
     'users',
     'courses',
+    'discounts',
     'constance',
     'constance.backends.database',
     'configurations',
