@@ -6,7 +6,7 @@ from courses.models import Enrolled
 PAYMENT_TYPE_CHOICES = (
     ('stripe', 'Online Payment (Stripe)'),
     ('cash', 'Cash'),
-    ('bank-transfer', 'Money Transfer'),
+    ('money-transfer', 'Money Transfer'),
     ('cheque', 'Cheque'),
     ('other', 'Other'),
 )
