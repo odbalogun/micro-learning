@@ -13,6 +13,14 @@ class PaymentLogAdmin(admin.ModelAdmin):
             obj.created_by = request.user
         obj.save()
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def get_actions(self, request):
+        actions = super(PaymentLogAdmin, self).get_actions(request)
+        actions.pop('delete_selected', None)
+        return actions
+
 
 class LogEntryAdmin(admin.ModelAdmin):
     readonly_fields = ('content_type',
