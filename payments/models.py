@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from courses.models import Enrolled
+from datetime import datetime
+from uuid import uuid4
 
 
 PAYMENT_TYPE_CHOICES = (
@@ -12,12 +14,22 @@ PAYMENT_TYPE_CHOICES = (
 )
 
 
+def increment_reference_number():
+    last_payment = PaymentLog.objects.all().order_by('id').last()
+    if not last_payment:
+        return 'OLAD00000001'
+    reference_int = int(last_payment.reference_no.split('OLAD')[-1])
+    return 'OLAD' + str(reference_int + 1)
+
+
 # Create your models here.
 class PaymentLog(models.Model):
     enrolled = models.ForeignKey(Enrolled, on_delete=models.SET_NULL, blank=True, null=True)
     amount_paid = models.DecimalField('amount paid', decimal_places=2, max_digits=10, default=0)
     payment_type = models.CharField('payment type', max_length=50, choices=PAYMENT_TYPE_CHOICES, default='stripe')
-    reference_no = models.CharField('reference no', max_length=50, blank=True, null=True)
+    reference_no = models.CharField('reference no', max_length=50, null=False, unique=True,
+                                    default=increment_reference_number)
+    payment_reference = models.CharField('cheque no', max_length=50, unique=True, blank=True, null=True)
     note = models.TextField('note', null=True, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField('created at', auto_now_add=True)
