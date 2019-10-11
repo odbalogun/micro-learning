@@ -1,5 +1,5 @@
 from suit.apps import DjangoSuitConfig
-from suit.menu import ParentItem, ChildItem
+from suit.menu import ParentItem
 
 
 class SuitConfig(DjangoSuitConfig):

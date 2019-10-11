@@ -5,7 +5,8 @@ from django.contrib.admin.models import LogEntry
 
 class PaymentLogAdmin(admin.ModelAdmin):
     exclude = ('created_by', 'created_at', 'reference_no')
-    list_display = ['course_name', 'user_name', 'payment_type', 'reference_no', 'payment_reference', 'display_amount_paid', 'created_at']
+    list_display = ['course_name', 'user_name', 'payment_type', 'reference_no', 'payment_reference',
+                    'display_amount_paid', 'created_at']
     list_display_links = None
 
     def save_model(self, request, obj, form, change):
