@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ['68.183.198.69', 'localhost']
 INSTALLED_APPS = [
     'olade.apps.SuitConfig',
     'rest_framework',
+    'super_inlines',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -66,6 +67,7 @@ CONSTANCE_ADDITIONAL_FIELDS = {
 CONSTANCE_CONFIG = {
     'APP_EMAIL_ADDRESS': ('test@test.ng', 'Email address by the application to send out emails'),
     'APP_EMAIL_PASSWORD': ('test123', 'Password for application email address', 'password'),
+    'HST_GST': (13, 'HST/GST value', int),
     'STRIPE_USERNAME': ('stripe', 'Username for Olade Stripe account'),
     'STRIPE_API_KEY': ('stripe', 'API key for Olade Stripe account', str),
     'ONE_DRIVE_API_KEY': ('one-drive', 'API key for Olade One Drive account', str),

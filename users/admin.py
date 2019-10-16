@@ -6,6 +6,10 @@ from .forms import AdminUserForm
 from courses.admin import EnrolledInline
 from olade.utilities import random_string
 from django.contrib.sites.shortcuts import get_current_site
+from super_inlines.admin import SuperModelAdmin
+
+from courses.models import Enrolled
+from payments.models import PaymentLog
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -36,10 +40,11 @@ class UserAdmin(admin.ModelAdmin):
         return self.model.objects.filter(is_staff=True)
 
 
-class StudentAdmin(admin.ModelAdmin):
-    inlines = [
-        EnrolledInline,
-    ]
+class StudentAdmin(SuperModelAdmin):
+    class Media:
+        js = ("update_course_fee.js", )
+
+    inlines = (EnrolledInline, )
     list_display = ('first_name', 'last_name', 'email', 'enrolled_courses_count', 'is_active', 'created_at')
     fields = ('email', 'first_name', 'last_name', 'is_active')
     exclude = ('is_superuser', 'is_staff', 'groups', 'user_permissions', 'last_login')
@@ -62,6 +67,20 @@ class StudentAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return self.model.objects.filter(is_staff=False)
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+
+        for instance in instances:
+            if isinstance(instance, PaymentLog):
+                instance.created_by = request.user
+                if instance.enrolled.payment_status == 'partly':
+                    amount = instance.enrolled.course.course_fee / 2
+                    instance.amount_owed = amount
+                else:
+                    amount = instance.enrolled.course.course_fee
+                instance.amount_paid = amount
+            instance.save()
 
 
 admin.site.register(User, UserAdmin)

@@ -2,22 +2,44 @@ from django.contrib import admin
 from django.urls import re_path, reverse
 from django.utils.html import format_html
 from django.template.response import TemplateResponse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from .models import Courses, Modules, Enrolled, EnrolledModules
-from .forms import ModuleForm, OpenEnrolledModuleForm
+from .forms import ModuleForm, OpenEnrolledModuleForm, EnrolledForm
 from .tasks import set_current_module
 from payments.forms import PaymentForm
+from payments.admin import PaymentLogInline
+from super_inlines.admin import SuperInlineModelAdmin
 
 
-class EnrolledInline(admin.StackedInline):
+class EnrolledInline(SuperInlineModelAdmin, admin.StackedInline):
     model = Enrolled
     extra = 1
     can_delete = True
+    inlines = (PaymentLogInline, )
+    form = EnrolledForm
 
 
 class EnrolledAdmin(admin.ModelAdmin):
     list_display = ('user', 'course', 'current_module', 'status', 'payment_status', 'date_enrolled', 'enrolled_actions')
     search_fields = ['user__first_name', 'user__last_name', 'course__name']
+    inlines = (PaymentLogInline, )
+    form = EnrolledForm
+
+    class Media:
+        js = ("update_course_fee.js", )
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+
+        for instance in instances:
+            instance.created_by = request.user
+            if instance.enrolled.payment_status == 'partly':
+                amount = instance.enrolled.course.course_fee / 2
+                instance.amount_owed = amount
+            else:
+                amount = instance.enrolled.course.course_fee
+            instance.amount_paid = amount
+            instance.save()
 
     def get_urls(self):
         urls = super().get_urls()
@@ -115,16 +137,38 @@ class EnrolledAdmin(admin.ModelAdmin):
     def process_payment_form(self, request, enrolled_id, action_form, action_title):
         enrolled = self.get_object(request, enrolled_id)
 
-        if request.method != 'POST':
-            form = action_form(initial={'enrolled': enrolled_id, 'created_by': request.user.id})
+        if enrolled.payment_status == 'paid':
+            self.message_user(request, 'Full payment has already been made', level='error')
+            url = reverse(
+                'admin:courses_enrolled_changelist',
+                current_app=self.admin_site.name,
+            )
+            return HttpResponseRedirect(url)
+
+        if enrolled.last_payment:
+            amount = enrolled.last_payment.amount_owed
         else:
-            form = action_form(request.POST, initial={'enrolled': enrolled_id, 'created_by': request.user.id})
+            amount = float(enrolled.course.course_fee / 2)
+
+        if request.method != 'POST':
+            form = action_form(initial={'enrolled': enrolled_id, 'created_by': request.user.id, 'amount_paid': amount})
+        else:
+            form = action_form(request.POST, initial={'enrolled': enrolled_id, 'created_by': request.user.id,
+                                                      'amount_paid': amount})
 
             if form.is_valid():
                 try:
-                    form.save()
-                except form.errors.Error as e:
-                    pass
+                    payment = form.save()
+                    payment.amount_paid = amount
+                    payment.amount_owed = None
+                    payment.save(force_discount=True)
+
+                    # updated enrolled
+                    enrolled.payment_status = 'paid'
+                    enrolled.save()
+                except Exception as e:
+                    print(form.errors)
+                    print(e)
                 else:
                     self.message_user(request, 'Payment created successfully', level='success')
                     url = reverse(
@@ -175,8 +219,9 @@ class EnrolledAdmin(admin.ModelAdmin):
         links += '<a title="Open specific module" href="{}"><i class="fa fa-folder-open"></i></a> '\
             .format(reverse('admin:enrolled-modules', args=[obj.pk]))
 
-        links += '<a title="Add payment" href="{}"><i class="fa fa-credit-card"></i></a> '\
-            .format(reverse('admin:add-payment', args=[obj.pk]))
+        if obj.payment_status != 'paid':
+            links += '<a title="Add payment" href="{}"><i class="fa fa-credit-card"></i></a> '\
+                .format(reverse('admin:add-payment', args=[obj.pk]))
 
         if obj.status != 'completed':
             links += '<a title="Mark course as completed" href="{}"><i class="fa fa-check-square"></i></a> '.\
@@ -186,12 +231,13 @@ class EnrolledAdmin(admin.ModelAdmin):
 
     def enrolled_actions(self, obj):
         return format_html(self.get_available_actions(obj))
+
     enrolled_actions.short_description = 'actions'
     enrolled_actions.allow_tags = True
 
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('name', 'course_code', 'slug', 'display_fee', 'students_count', 'modules_count', 'is_active',
+    list_display = ('name', 'course_code', 'slug', 'display_base_fee', 'display_fee', 'students_count', 'modules_count', 'is_active',
                     'created_by', 'created_at', 'course_actions')
     search_fields = ('name', )
     list_filter = ('created_by', 'created_at')
@@ -220,8 +266,17 @@ class CourseAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.view_course),
                 name='view',
             ),
+            re_path(
+                r'^(?P<course_id>.+)/get-course/$',
+                self.admin_site.admin_view(self.get_course_details),
+                name='get-course',
+            ),
         ]
         return custom_urls + urls
+
+    def get_course_details(self, request, course_id, *args, **kwargs):
+        course = self.get_object(request, course_id)
+        return JsonResponse({"name": course.name, "course_fee": course.course_fee }, status=200)
 
     def view_course(self, request, course_id, *args, **kwargs):
         course = self.get_object(request, course_id)
@@ -287,11 +342,10 @@ class CourseAdmin(admin.ModelAdmin):
         )
 
     def course_actions(self, obj):
-        return format_html('<a title="View Course" href="{}"><i class="fa fa-eye"></i></a>&nbsp;' 
-                           '<a title="Add Module" href="{}"><i class="fa fa-plus-circle"></i></a>&nbsp;'                           
+        return format_html('<a title="Add Module" href="{}"><i class="fa fa-plus-circle"></i></a>&nbsp;'                           
                            '<a title="View Students" href="{}"><i class="fa fa-users"></i></a>&nbsp;',
-                           reverse('admin:view', args=[obj.pk]), reverse('admin:add-module', args=[obj.pk]),
-                           reverse('admin:courses_enrolled_changelist') + "?course_id={}".format(obj.pk))
+                           reverse('admin:add-module', args=[obj.pk]), reverse('admin:courses_enrolled_changelist')
+                           + "?course_id={}".format(obj.pk))
 
     def mark_activated(self, request, queryset):
         queryset.update(is_active=True)

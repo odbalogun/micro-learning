@@ -1,12 +1,42 @@
 from django.contrib import admin
 from .models import PaymentLog
+from .forms import PaymentInlineForm
+from django.urls import resolve
 from django.contrib.admin.models import LogEntry
+from super_inlines.admin import SuperInlineModelAdmin
+
+
+class PaymentLogInline(SuperInlineModelAdmin, admin.StackedInline):
+    model = PaymentLog
+    extra = 1
+    can_delete = False
+    max_num = 1
+    min_num = 1
+    form = PaymentInlineForm
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def get_parent_object_from_request(self, request):
+        """
+        Returns the parent object from the request or None.
+
+        Note that this only works for Inlines, because the `parent_model`
+        is not available in the regular admin.ModelAdmin as an attribute.
+        """
+        resolved = resolve(request.path_info)
+        if resolved.args:
+            return self.parent_model.objects.get(pk=resolved.args[0])
+        return None
 
 
 class PaymentLogAdmin(admin.ModelAdmin):
-    exclude = ('created_by', 'created_at', 'reference_no')
-    list_display = ['course_name', 'user_name', 'payment_type', 'reference_no', 'payment_reference',
-                    'display_amount_paid', 'created_at']
+    exclude = ('created_by', 'created_at', 'reference_no', 'amount_owed', 'has_applied_discount')
+    list_display = ['course_name', 'user_name', 'reference_no', 'payment_reference', 'payment_type',
+                    'display_amount_paid', 'display_discount', 'display_amount_owed', 'created_at']
     list_display_links = None
 
     def save_model(self, request, obj, form, change):

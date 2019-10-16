@@ -1,5 +1,13 @@
-from .models import Modules, EnrolledModules
+from .models import Modules, EnrolledModules, Enrolled
 from django import forms
+
+
+class EnrolledForm(forms.ModelForm):
+    course_fee = forms.FloatField(label='Course Fee', disabled=True, required=False)
+
+    class Meta:
+        model = Enrolled
+        exclude = ('date_enrolled',)
 
 
 class ModuleForm(forms.ModelForm):
