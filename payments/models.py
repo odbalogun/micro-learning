@@ -21,6 +21,14 @@ def increment_reference_number():
     return 'OLAD' + str(reference_int + 1).zfill(8)
 
 
+def increment_refund_reference():
+    last_refund = Refund.objects.all().order_by('id').last()
+    if not last_refund:
+        return 'RFND00000001'
+    reference_int = int(last_refund.reference_no.split('RFND')[-1])
+    return 'RFND' + str(reference_int + 1).zfill(8)
+
+
 # Create your models here.
 class PaymentLog(models.Model):
     enrolled = models.ForeignKey(Enrolled, on_delete=models.SET_NULL, blank=True, null=True, related_name='payments')
@@ -89,3 +97,29 @@ class PaymentLog(models.Model):
     display_amount_paid.short_description = 'Amount Paid'
     display_discount.short_description = 'Discount'
     display_amount_owed.short_description = 'Amount Owed'
+
+
+class Refund(models.Model):
+    enrolled = models.ForeignKey(Enrolled, on_delete=models.SET_NULL, blank=False, null=True)
+    amount = models.DecimalField('refund amount', decimal_places=2, max_digits=10, null=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='refunded by', on_delete=models.SET_NULL,
+                                   blank=True, null=True)
+    created_at = models.DateTimeField('created at', auto_now_add=True)
+    note = models.TextField('refund reason', null=True, blank=True)
+    reference_no = models.CharField('reference no', max_length=50, null=False, unique=True,
+                                    default=increment_refund_reference)
+
+    def display_amount(self):
+        if self.amount:
+            return "${:0,.2f}".format(self.amount)
+        return self.amount
+
+    def course_name(self):
+        if self.enrolled:
+            return self.enrolled.course
+        return self.enrolled
+
+    def user_name(self):
+        if self.enrolled:
+            return self.enrolled.user
+        return self.enrolled

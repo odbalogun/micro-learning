@@ -137,6 +137,14 @@ class Enrolled(SafeDeleteModel):
             return self.payments.order_by('-created_at').first()
         return None
 
+    @property
+    def total_amount_paid(self):
+        total = 0
+        if self.payments:
+            for payment in self.payments.all():
+                total += payment.amount_paid
+        return total
+
 
 class EnrolledModules(SafeDeleteModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

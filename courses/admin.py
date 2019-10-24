@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from .models import Courses, Modules, Enrolled, EnrolledModules
 from .forms import ModuleForm, OpenEnrolledModuleForm, EnrolledForm
 from .tasks import set_current_module
-from payments.forms import PaymentForm
+from payments.forms import PaymentForm, RefundForm
 from payments.admin import PaymentLogInline
 from super_inlines.admin import SuperInlineModelAdmin
 
@@ -63,6 +63,11 @@ class EnrolledAdmin(admin.ModelAdmin):
                 r'^(?P<enrolled_id>.+)/add-payment/$',
                 self.admin_site.admin_view(self.process_add_payment),
                 name='add-payment',
+            ),
+            re_path(
+                r'^(?P<enrolled_id>.+)/refund/$',
+                self.admin_site.admin_view(self.process_fees_refund),
+                name='fee-refund',
             ),
         ]
         return custom_urls + urls
@@ -188,6 +193,45 @@ class EnrolledAdmin(admin.ModelAdmin):
             context,
         )
 
+    def process_fees_refund(self, request, enrolled_id, *args, **kwargs):
+        return self.process_refund_form(
+            request=request,
+            enrolled_id=enrolled_id,
+            action_form=RefundForm,
+            action_title='Process Refund'
+        )
+
+    def process_refund_form(self, request, enrolled_id, action_form, action_title):
+        enrolled = self.get_object(request, enrolled_id)
+
+        if request.method != 'POST':
+            form = action_form(initial={'enrolled': enrolled_id, 'created_by': request.user.id})
+        else:
+            form = action_form(request.POST, initial={'enrolled': enrolled_id, 'created_by': request.user.id})
+
+            if form.is_valid():
+                instance = form.save()
+                instance.enrolled = enrolled
+                instance.created_by = request.user
+                instance.save()
+                self.message_user(request, 'Refund created successfully', level='success')
+                url = reverse(
+                    'admin:courses_enrolled_changelist',
+                    current_app=self.admin_site.name,
+                )
+                return HttpResponseRedirect(url)
+
+        context = self.admin_site.each_context(request)
+        context['opts'] = self.model._meta
+        context['form'] = form
+        context['enrolled'] = enrolled
+        context['title'] = action_title
+        return TemplateResponse(
+            request,
+            'admin/courses/fee_refund.html',
+            context,
+        )
+
     def completed_course(self, request, enrolled_id, *args, **kwargs):
         enrolled = self.get_object(request, enrolled_id)
         if enrolled:
@@ -227,6 +271,9 @@ class EnrolledAdmin(admin.ModelAdmin):
             links += '<a title="Mark course as completed" href="{}"><i class="fa fa-check-square"></i></a> '.\
                 format(reverse('admin:completed-course', args=[obj.pk]))
 
+        links += '<a title="Refund user" href="{}"><i class="fa fa-undo"></i></a>'.format(
+            reverse('admin:fee-refund', args=[obj.pk]))
+
         return links
 
     def enrolled_actions(self, obj):
@@ -237,8 +284,8 @@ class EnrolledAdmin(admin.ModelAdmin):
 
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('name', 'course_code', 'slug', 'display_base_fee', 'display_fee', 'students_count', 'modules_count', 'is_active',
-                    'created_by', 'created_at', 'course_actions')
+    list_display = ('name', 'course_code', 'slug', 'display_base_fee', 'display_fee', 'students_count', 'modules_count',
+                    'is_active', 'created_by', 'created_at', 'course_actions')
     search_fields = ('name', )
     list_filter = ('created_by', 'created_at')
     exclude = ('slug', 'created_at', 'created_by', 'is_active')
@@ -276,7 +323,7 @@ class CourseAdmin(admin.ModelAdmin):
 
     def get_course_details(self, request, course_id, *args, **kwargs):
         course = self.get_object(request, course_id)
-        return JsonResponse({"name": course.name, "course_fee": course.course_fee }, status=200)
+        return JsonResponse({"name": course.name, "course_fee": course.course_fee}, status=200)
 
     def view_course(self, request, course_id, *args, **kwargs):
         course = self.get_object(request, course_id)

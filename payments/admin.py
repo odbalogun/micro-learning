@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PaymentLog
+from .models import PaymentLog, Refund
 from .forms import PaymentInlineForm
 from django.urls import resolve
 from django.contrib.admin.models import LogEntry
@@ -38,6 +38,7 @@ class PaymentLogAdmin(admin.ModelAdmin):
     list_display = ['course_name', 'user_name', 'reference_no', 'payment_reference', 'payment_type',
                     'display_amount_paid', 'display_discount', 'display_amount_owed', 'created_at']
     list_display_links = None
+    search_fields = ['enrolled__user__first_name', 'enrolled__user__last_name', 'enrolled__course__name']
 
     def save_model(self, request, obj, form, change):
         if getattr(obj, 'created_by', None) is None:
@@ -55,6 +56,32 @@ class PaymentLogAdmin(admin.ModelAdmin):
 
     def get_actions(self, request):
         actions = super(PaymentLogAdmin, self).get_actions(request)
+        actions.pop('delete_selected', None)
+        return actions
+
+
+class RefundAdmin(admin.ModelAdmin):
+    exclude = ('created_by', 'created_at', 'reference_no')
+    list_display = ['course_name', 'user_name', 'reference_no', 'display_amount', 'created_by', 'created_at']
+    list_display_links = None
+    search_fields = ['enrolled__user__first_name', 'enrolled__user__last_name', 'enrolled__course__name']
+
+    def save_model(self, request, obj, form, change):
+        if getattr(obj, 'created_by', None) is None:
+            obj.created_by = request.user
+        obj.save()
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def get_actions(self, request):
+        actions = super(RefundAdmin, self).get_actions(request)
         actions.pop('delete_selected', None)
         return actions
 
@@ -88,3 +115,4 @@ class LogEntryAdmin(admin.ModelAdmin):
 
 admin.site.register(LogEntry, LogEntryAdmin)
 admin.site.register(PaymentLog, PaymentLogAdmin)
+admin.site.register(Refund, RefundAdmin)

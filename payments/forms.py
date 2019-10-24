@@ -1,4 +1,4 @@
-from .models import PaymentLog
+from .models import PaymentLog, Refund, Enrolled
 from django import forms
 
 
@@ -24,3 +24,19 @@ class PaymentInlineForm(forms.ModelForm):
 
     def has_changed(self, *args, **kwargs):
         return True
+
+
+class RefundForm(forms.ModelForm):
+    class Meta:
+        model = Refund
+        exclude = ('created_at', 'created_by', 'enrolled', 'reference_no')
+
+    def clean_amount(self):
+        enrolled = Enrolled.objects.get(pk=self.initial.get('enrolled'))
+        amount = self.cleaned_data.get('amount')
+        if enrolled:
+            if amount > enrolled.total_amount_paid:
+                raise forms.ValidationError('Error. Refund amount cannot be greater than amount paid (${})'.format(
+                    enrolled.total_amount_paid))
+            return amount
+        raise forms.ValidationError('Invalid enrolled record provided')
