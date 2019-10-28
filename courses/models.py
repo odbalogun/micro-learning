@@ -64,7 +64,7 @@ class Courses(SafeDeleteModel):
 
     @property
     def course_fee(self):
-        return float(self.base_fee) * (1 + float(custom_config.HST_GST/100))
+        return round(float(self.base_fee) * (1 + float(custom_config.HST_GST/100)), 2)
 
     def __str__(self):
         return self.name
