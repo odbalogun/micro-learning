@@ -205,9 +205,11 @@ class EnrolledAdmin(admin.ModelAdmin):
         enrolled = self.get_object(request, enrolled_id)
 
         if request.method != 'POST':
-            form = action_form(initial={'enrolled': enrolled_id, 'created_by': request.user.id})
+            form = action_form(initial={'enrolled': enrolled_id, 'created_by': request.user.id,
+                                        'amount_paid': enrolled.total_amount_paid})
         else:
-            form = action_form(request.POST, initial={'enrolled': enrolled_id, 'created_by': request.user.id})
+            form = action_form(request.POST, initial={'enrolled': enrolled_id, 'created_by': request.user.id,
+                                                      'amount_paid': enrolled.total_amount_paid})
 
             if form.is_valid():
                 instance = form.save()

@@ -51,4 +51,4 @@ class NewEnrolleeApiViewSet(viewsets.GenericViewSet):
         enrollee = Enrolled(course=course, user=user, current_module=course.get_first_module, status='pending',
                             payment_status='unpaid')
         enrollee.save()
-        return Response({'msg': 'Successfully registered'}, status=status.HTTP_201_CREATED)
+        return Response({'msg': 'Successfully registered', 'enrollee': enrollee.pk}, status=status.HTTP_201_CREATED)

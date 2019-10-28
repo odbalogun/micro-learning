@@ -1,15 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from django.urls import reverse_lazy
+from django.conf import settings
+from django.urls import reverse_lazy, reverse, re_path
 from .models import User, Student
 from .forms import AdminUserForm
 from courses.admin import EnrolledInline
 from olade.utilities import random_string
 from django.contrib.sites.shortcuts import get_current_site
 from super_inlines.admin import SuperModelAdmin
-
-from courses.models import Enrolled
+from django.utils.html import format_html
+from mimetypes import guess_type
+from django.http import HttpResponseRedirect, HttpResponse
 from payments.models import PaymentLog
+import os
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -45,7 +48,8 @@ class StudentAdmin(SuperModelAdmin):
         js = ("update_course_fee.js", )
 
     inlines = (EnrolledInline, )
-    list_display = ('first_name', 'last_name', 'email', 'enrolled_courses_count', 'is_active', 'created_at')
+    list_display = ('first_name', 'last_name', 'email', 'phone_number', 'address', 'enrolled_courses_count',
+                    'is_active', 'created_at', 'student_actions')
     fields = ('email', 'first_name', 'last_name', 'is_active')
     exclude = ('is_superuser', 'is_staff', 'groups', 'user_permissions', 'last_login')
 
@@ -81,6 +85,53 @@ class StudentAdmin(SuperModelAdmin):
                     amount = instance.enrolled.course.course_fee
                 instance.amount_paid = amount
             instance.save()
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            re_path(
+                r'^(?P<student_id>.+)/download-identification/$',
+                self.admin_site.admin_view(self.download_identification),
+                name='download-identification',
+            ),
+        ]
+        return custom_urls + urls
+
+    def get_available_actions(self, obj):
+        links = ''
+
+        if obj.identity:
+            links += '<a title="Download identification" href="{}"><i class="fa fa-download"></i></a> '.\
+                format(reverse('admin:download-identification', args=[obj.pk]))
+        return links
+
+    def student_actions(self, obj):
+        return format_html(self.get_available_actions(obj))
+
+    def download_identification(self, request, student_id, *args, **kwargs):
+        student = self.get_object(request, student_id)
+
+        if not student:
+            self.message_user(request, "Student entry could not be found", level='error')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('admin:users_student_changelist')))
+
+        if not student.identity:
+            self.message_user(request, "Student has not provided identification", level='error')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('admin:users_student_changelist')))
+
+        file_path = student.identity.path
+        if not os.path.exists(file_path):
+            self.message_user(request, "Error! File not found. Advise student to re-upload", level='error')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('admin:users_student_changelist')))
+
+        with open(file_path, 'rb') as f:
+            response = HttpResponse(f, content_type=guess_type(file_path)[0])
+            response['Content-Length'] = len(response.content)
+            response['Content-Disposition'] = 'attachment; filename={}'.format(os.path.basename(file_path))
+            return response
+
+    student_actions.short_description = 'actions'
+    student_actions.allow_tags = True
 
 
 admin.site.register(User, UserAdmin)

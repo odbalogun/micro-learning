@@ -11,6 +11,7 @@ class PaymentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['amount_paid'].disabled = True
+        self.fields['amount_paid'].label = 'Amount Owed'
 
 
 class PaymentInlineForm(forms.ModelForm):
@@ -27,9 +28,15 @@ class PaymentInlineForm(forms.ModelForm):
 
 
 class RefundForm(forms.ModelForm):
+    amount_paid = forms.DecimalField(label='Amount Paid')
+
     class Meta:
         model = Refund
         exclude = ('created_at', 'created_by', 'enrolled', 'reference_no')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['amount_paid'].disabled = True
 
     def clean_amount(self):
         enrolled = Enrolled.objects.get(pk=self.initial.get('enrolled'))
@@ -40,3 +47,5 @@ class RefundForm(forms.ModelForm):
                     enrolled.total_amount_paid))
             return amount
         raise forms.ValidationError('Invalid enrolled record provided')
+
+    field_order = ['amount_paid', 'amount', 'note']
