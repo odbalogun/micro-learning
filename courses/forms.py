@@ -7,7 +7,7 @@ class EnrolledForm(forms.ModelForm):
 
     class Meta:
         model = Enrolled
-        exclude = ('date_enrolled',)
+        exclude = ('date_enrolled', 'initial_payment_type')
 
 
 class ModuleForm(forms.ModelForm):

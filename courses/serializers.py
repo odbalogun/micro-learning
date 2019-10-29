@@ -1,4 +1,4 @@
-from .models import Courses, Modules
+from .models import Courses, Modules, PendingEnrollments
 from rest_framework import serializers
 
 
@@ -17,9 +17,7 @@ class CourseSerializer(serializers.ModelSerializer):
                   'pre_requisites', 'strategy', 'tools_and_technology', 'learning_and_outcome', 'course_fee', 'modules']
 
 
-class NewEnrolleeSerializer(serializers.Serializer):
-    first_name = serializers.CharField(max_length=100, required=True)
-    last_name = serializers.CharField(max_length=100, required=True)
-    phone_number = serializers.CharField(max_length=100, required=False)
-    email = serializers.EmailField(max_length=100, required=True)
-    course_id = serializers.IntegerField(required=True)
+class NewEnrolleeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PendingEnrollments
+        exclude = ['date_created']

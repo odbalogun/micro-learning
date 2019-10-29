@@ -7,11 +7,17 @@ from tinymce.models import HTMLField
 from django.urls import reverse
 from constance import config as custom_config
 import datetime
+from discounts.models import Discount
 
 
 PAYMENT_STATUS_CHOICES = (
     ('partly', 'Part Payment'),
     ('paid', 'Fully Paid')
+)
+
+INITIAL_PAYMENT_TYPES = (
+    ('partial', 'Part Payment'),
+    ('full', 'Full Payment')
 )
 
 ENROLLED_STATUS_CHOICES = (
@@ -160,3 +166,18 @@ class EnrolledModules(SafeDeleteModel):
     def set_expires(self):
         if getattr(self, 'days'):
             self.expires = datetime.datetime.now() + datetime.timedelta(days=self.days)
+
+
+class PendingEnrollments(SafeDeleteModel):
+    first_name = models.CharField('first name', max_length=100, null=False, blank=False)
+    last_name = models.CharField('last name', max_length=100, null=False, blank=False)
+    email = models.EmailField('email', max_length=100, null=False, blank=False)
+    phone_number = models.CharField('phone number', max_length=100, null=True, blank=True)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    amount = models.DecimalField('amount paid', decimal_places=2, max_digits=10)
+    payment_type = models.CharField(max_length=10, null=True, choices=INITIAL_PAYMENT_TYPES)
+    payment_status = models.CharField(max_length=50, default='unpaid', null=True)
+    applied_discount = models.DecimalField('discount', blank=True, null=True, decimal_places=2, max_digits=10)
+    discount = models.ForeignKey(Discount, on_delete=models.SET_NULL, blank=True, null=True)
+    amount_owed = models.DecimalField('amount owed', null=True, blank=True, decimal_places=2, max_digits=10)
+    date_created = models.DateTimeField('date created', auto_now_add=True)
