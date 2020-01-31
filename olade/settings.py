@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-
+import environ
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+env = environ.Env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'payments',
     'smart_selects',
     'widget_tweaks',
+    'taskapp.celery.CeleryConfig'
 ]
 
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
@@ -180,6 +181,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 EMAIL_HOST = "smtp.outlook.office365.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-
+EMAIL_HOST_USER = "training@oladeconsulting.com"
+EMAIL_HOST_PASSWORD = "Carrot123#"
+DEFAULT_FROM_EMAIL = 'training@oladeconsulting.com'
+DEBUG_EMAIL_RECIPIENTS = ['pranavkneeraj@gmail.com']
 # for smart selects
 USE_DJANGO_JQUERY = True
+
+CELERY_ALWAYS_EAGER = not True
+CELERY_TIMEZONE = 'UTC'
+BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')

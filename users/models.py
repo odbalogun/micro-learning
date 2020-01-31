@@ -9,8 +9,8 @@ from django.core.mail import send_mail
 from .managers import UserManager
 from constance import config as custom_config
 import datetime
-
-
+from taskapp.tasks import mail
+from taskapp.celery import app
 def identity_document_path(instance, filename):
     # for file uploads
     return 'documents/users/{0}/{1}/{2}/{3}'.format(datetime.datetime.now().year,
@@ -68,13 +68,15 @@ class User(SafeDeleteModel, AbstractBaseUser, PermissionsMixin):
             "first_name": self.first_name,
             "last_name": self.last_name
         }
-
+    
     def email_user(self, subject, from_email=custom_config.APP_EMAIL_ADDRESS, **kwargs):
         """
         Send an email to this user.
         Kwargs can contain the following:
         title; subtitle; content; button_link; button_value
         """
+        mail.delay('emails/template.html', kwargs, subject, [self.email])
+        return
         html_message = render_to_string('emails/template.html', kwargs)
         plain_message = strip_tags(html_message)
 
