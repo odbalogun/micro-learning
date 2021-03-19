@@ -8,7 +8,7 @@ django-suit==2.0a1
 django-super-inlines==0.1.4
 django-tinymce==2.8.0
 django-widget-tweaks==1.4.5
-djangorestframework==3.10.3
+djangorestframework==3.11.2
 mysqlclient==1.4.4
 Pillow==6.0.0
 python-monkey-business==1.0.0
